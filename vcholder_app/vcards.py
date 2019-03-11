@@ -55,3 +55,9 @@ class VCards(object):
                 # print('Insert')
         db.session.commit()
         return updated, inserted
+
+    def delete_by_uid(self, uid):
+        for vcard in VCard.query.filter_by(uid=uid).all():
+            db.session.delete(vcard)
+        db.session.commit()
+        return True
