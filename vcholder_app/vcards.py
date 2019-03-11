@@ -28,7 +28,7 @@ class VCards(object):
         vc = VCard.query.filter_by(uid=uid).all()
         for vc_item in vc:
             vcl.append('%s:%s' % (vc_item.vc_property, vc_item.vc_value))
-        vcl.append('UID:%s' % uid)
+        # vcl.append('UID:%s' % uid)
         vcl.append('END:VCARD')
         if html:
             return '<BR>'.join(vcl)

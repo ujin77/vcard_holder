@@ -7,7 +7,7 @@ from flask import Response
 from vcholder_app.vcards import VCards
 
 
-@app.route('/')
+# @app.route('/')
 @app.route('/index')
 def index():
     return VCards().get_by_uid('00000000-0000-0000-0000-000000000000', True)
@@ -30,6 +30,7 @@ def get_notification(notify_event):
     return jsonify({'result': 'OK'})
 
 
+@app.route('/<string:uid>', methods=['GET'])
 @app.route('/api/v1.0/get/<string:uid>', methods=['GET'])
 def get_vcard(uid):
     # return VCards().get_by_uid(uid)
