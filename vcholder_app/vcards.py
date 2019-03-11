@@ -23,6 +23,11 @@ from vcholder_app.models import VCard
 
 class VCards(object):
 
+    def is_uid(self, uid):
+        if VCard.query.filter_by(uid=uid).first():
+            return True
+        return False
+
     def get_by_uid(self, uid, html=False):
         vcl = ['BEGIN:VCARD', 'VERSION:3.0']
         vc = VCard.query.filter_by(uid=uid).all()
