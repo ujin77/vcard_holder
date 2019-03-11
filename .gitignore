@@ -1,2 +1,4 @@
 venv/*
 vcard_ldap_sync.py
+*.db
+.idea/*
