@@ -5,7 +5,6 @@ from flask import abort
 from flask import Response
 
 from vcholder_app.vcards import VCards
-# from vcholder_app.models import VCard
 
 
 @app.route('/')

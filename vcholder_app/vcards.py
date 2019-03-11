@@ -1,24 +1,24 @@
-import uuid
 from vcholder_app import db
 from vcholder_app.models import VCard
-import json
+# import uuid
+# import json
 
 
-def get_vcard(uid):
-    return 'test<HR>'
+# def get_vcard(uid):
+#     return 'test<HR>'
 
 
-def new_uuid():
-    return str(uuid.uuid4())
+# def new_uuid():
+#     return str(uuid.uuid4())
 
 
-def add_defaults():
-    uid = '00000000-0000-0000-0000-000000000000'
-    db.session.add(VCard(uid, 'N', 'Gump;Forrest;;Mr.;'))
-    db.session.add(VCard(uid, 'FN', 'Forrest Gump'))
-    db.session.add(VCard(uid, 'ORG', 'Bubba Gump Shrimp Co.'))
-    db.session.add(VCard(uid, 'TITLE', 'Shrimp Man'))
-    db.session.commit()
+# def add_defaults():
+#     uid = '00000000-0000-0000-0000-000000000000'
+#     db.session.add(VCard(uid, 'N', 'Gump;Forrest;;Mr.;'))
+#     db.session.add(VCard(uid, 'FN', 'Forrest Gump'))
+#     db.session.add(VCard(uid, 'ORG', 'Bubba Gump Shrimp Co.'))
+#     db.session.add(VCard(uid, 'TITLE', 'Shrimp Man'))
+#     db.session.commit()
 
 
 class VCards(object):
@@ -50,6 +50,3 @@ class VCards(object):
                 # print('Insert')
         db.session.commit()
         return updated, inserted
-
-
-# add_defaults()
