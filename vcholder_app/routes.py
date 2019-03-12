@@ -57,15 +57,14 @@ def index():
     return render_template('vcard.html', uid=uid, vcard_items=items)
 
 
-@app.route('/api/v1.0/sync/<string:uid>', methods=['PUT'])
+@app.route('/api/v1.0/sync/<uuid(strict=False):uid>', methods=['PUT'])
+@require_appkey
 def sync_vcard(uid):
-    if len(uid) == 0:
-        abort(404)
     if not request.json:
         abort(400)
-    (u, i) = ldap_sync(uid, request.json)
+    (u, i) = ldap_sync(str(uid), request.json)
     # print(request.json)
-    return jsonify({uid: {'updated': u, 'new': i}})
+    return jsonify({str(uid): {'updated': u, 'new': i}})
 
 
 @app.route('/<uuid(strict=False):uid>', methods=['GET'])

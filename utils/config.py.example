@@ -1,0 +1,23 @@
+class Config:
+    API_KEY = '000000000000000000000000000000'
+    VCARD_SERVER = 'http://localhost:8082'
+    LDAP_PROVIDER_URL = 'ldap://localhost:389/'
+    LDAP_PROTOCOL_VERSION = 3
+    LDAP_BIND_DN = u'CN=user,OU=users,DC=domain,DC=local'
+    LDAP_BIND_PW = u'password'
+    LDAP_BASE_DN = u'OU=users,DC=domain,DC=local'
+    LDAP_SEARCH_FILTER = u'(&(objectClass=user)(objectClass=top)(objectClass=person))'
+    LDAP_RETRIEVE_ATTRIBUTES = ["sn", "givenName", "displayName", "telephoneNumber", "mobile", "thumbnailPhoto", "mail", "objectGUID"]
+
+
+class DevelopmentConfig(Config):
+    DEBUG = True
+
+
+class TestConfig(Config):
+    DEBUG = True
+    TESTING = True
+
+
+class ProductionConfig(Config):
+    DEBUG = False
