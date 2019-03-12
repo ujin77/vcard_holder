@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>VCARD: {{ uid }}</title>
+</head>
+<body>
+VCARD: <a href="{{ href }}">{{ uid }}</a>
+<hr />
+BEGIN:VCARD<br />
+VERSION:3.0<br />
+{% for item in vcard_items %}
+        {{ item.vc_property }}:{{ item.vc_value }}<br />
+{% endfor %}
+END:VCARD
+<hr />
+</body>
+</html>
