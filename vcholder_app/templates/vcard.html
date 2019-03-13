@@ -7,16 +7,18 @@
 <body>
 {% if photo %}
 <img src="{{ photo }}">
+<img src="{{ qr }}">
 <hr />
 {% endif %}
-VCARD: <a href="{{ href }}">{{ uid }}</a>
-<hr />
+<p>
 BEGIN:VCARD<br />
 VERSION:3.0<br />
 {% for item in vcard_items %}
-        {{ item.vc_property }}:{{ item.vc_value }}<br />
+{{ item.vc_property }}:{{ item.vc_value }}<br />
 {% endfor %}
 END:VCARD
+</p>
 <hr />
+<a href="{{ href }}">Download VCARD</a>
 </body>
 </html>

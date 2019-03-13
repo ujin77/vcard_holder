@@ -1,10 +1,13 @@
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_uuid import FlaskUUID
+from flask_qrcode import QRcode
 
 
 app = Flask(__name__)
 FlaskUUID(app)
+qrcode = QRcode(app)
+
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///vcholder.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False

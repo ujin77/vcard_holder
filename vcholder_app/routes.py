@@ -1,7 +1,7 @@
 import os
 import io
 from vcholder_app import app
-from vcholder_app import db
+from vcholder_app import db, qrcode
 from flask import render_template, url_for, send_file
 from flask import jsonify, request, abort, Response
 from functools import wraps
@@ -69,6 +69,15 @@ def render_vcf(items, uid):
     return Response("\n".join(vcl), mimetype="text/x-vcard", headers=headers)
 
 
+def render_qrcode(items, uid):
+    vcl = ['BEGIN:VCARD', 'VERSION:3.0']
+    for vc_item in items:
+        vcl.append('%s:%s' % (vc_item.vc_property, vc_item.vc_value))
+    vcl.append('UID:%s' % uid)
+    vcl.append('END:VCARD')
+    return send_file(qrcode("\n".join(vcl), mode='raw'), mimetype='image/png')
+
+
 @app.route('/index')
 def index():
     uid = '00000000-0000-0000-0000-000000000000'
@@ -98,7 +107,8 @@ def get_card(uid):
         return render_template('vcard.html', uid=str(uid),
                                vcard_items=vcard_items,
                                href=url_for('get_card', uid=str(uid)),
-                               photo=url_photo(str(uid)))
+                               photo=url_photo(str(uid)),
+                               qr=url_for('get_qrcode', uid=str(uid)))
     return render_vcf(vcard_items, str(uid))
 
 
@@ -131,3 +141,11 @@ def get_avatar(uid):
             return send_file(io.BytesIO(bites.read()), attachment_filename='{}.jpeg'.format(str(uid)),
                              mimetype='image/jpg')
     abort(404)
+
+
+@app.route('/api/v1.0/qrcode/<uuid(strict=False):uid>', methods=['GET'])
+def get_qrcode(uid):
+    vcard_items = VCard.query.filter_by(uid=str(uid)).all()
+    if not vcard_items:
+        abort(404)
+    return send_file(qrcode(url_for('get_card', uid=str(uid), _external=True), mode='raw'), mimetype='image/png')
