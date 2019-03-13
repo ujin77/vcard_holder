@@ -1,11 +1,9 @@
 import os
+import io
 from vcholder_app import app
 from vcholder_app import db
-from flask import render_template, url_for
-from flask import jsonify
-from flask import request
-from flask import abort
-from flask import Response
+from flask import render_template, url_for, send_file
+from flask import jsonify, request, abort, Response
 from functools import wraps
 from vcholder_app.models import VCard
 import base64
@@ -40,21 +38,19 @@ def ldap_sync(uid, data):
     return updated, inserted
 
 
-def is_photo(uid):
-    return os.path.isfile('{}/static/images/{}.jpeg'.format(app.root_path, uid))
-
-
 def url_photo(uid):
-    if is_photo(str(uid)):
-        return url_for('static', filename='images/{}.jpeg'.format(uid), _external=True)
+    if os.path.isfile('{}/avatars/{}.jpeg'.format(app.root_path, str(uid))):
+        return url_for('get_avatar', uid=str(uid))
+    elif os.path.isfile('{}/avatars/00000000-0000-0000-0000-000000000000.jpeg'.format(app.root_path)):
+        return url_for('get_avatar', uid='00000000-0000-0000-0000-000000000000')
     return None
 
 
-def get_image(uid, type='PHOTO'):
+def get_image(uid, attr='PHOTO'):
     file_name = '{}/avatars/{}.jpeg'.format(app.root_path, str(uid))
     if os.path.isfile(file_name):
         data = open(file_name, 'rb').read()
-        return "{};TYPE=JPEG;ENCODING=b:{}".format(type, base64.b64encode(data).decode())
+        return "{};TYPE=JPEG;ENCODING=b:{}".format(attr, base64.b64encode(data).decode())
     return None
 
 
@@ -125,3 +121,13 @@ def delete_card(uid):
         db.session.delete(vcard)
     db.session.commit()
     return jsonify({uid: 'OK'})
+
+
+@app.route('/api/v1.0/avatars/<uuid(strict=False):uid>', methods=['GET'])
+def get_avatar(uid):
+    file_name = '{}/avatars/{}.jpeg'.format(app.root_path, str(uid))
+    if os.path.isfile(file_name):
+        with open(file_name, 'rb') as bites:
+            return send_file(io.BytesIO(bites.read()), attachment_filename='{}.jpeg'.format(str(uid)),
+                             mimetype='image/jpg')
+    abort(404)
