@@ -7,8 +7,8 @@ import re
 from datetime import datetime
 import config
 
-cfg = config.TestConfig
-# cfg = config.ProductionConfig
+# cfg = config.TestConfig
+cfg = config.ProductionConfig
 
 API_KEY = cfg.API_KEY
 VCARD_SERVER = cfg.VCARD_SERVER
@@ -18,7 +18,6 @@ LDAP_BIND_PW = cfg.LDAP_BIND_PW
 LDAP_BASE_DN = cfg.LDAP_BASE_DN
 DEFAULT_ATTRS = cfg.DEFAULT_ATTRS
 
-# VCARD_SERVER_URL = cfg.VCARD_SERVER + '/api/v1.0/sync/{}'
 SYNC_URL = cfg.VCARD_SERVER + '/api/v1.0/sync/{}'
 VCARDS_URL = cfg.VCARD_SERVER + '/api/v1.0/vcards/{}'
 
@@ -44,7 +43,7 @@ LOGO;TYPE=PNG;ENCODING=b:[base64-data]
 """
 
 field_map = {
-    "FN;CHARSET=UTF-8":     {"template": "%s %s",   "fields": ['givenName', 'sn']},
+    "FN;CHARSET=UTF-8":     {"template": "%s",   "fields": ['displayName']},
     "N;CHARSET=UTF-8":      {"template": "%s;%s;;;",   "fields": ['sn', 'givenName']},
     "TEL;WORK;VOICE":       {"template": "%s",      "fields": ['telephoneNumber']},
     "TEL;CELL;VOICE":       {"template": "%s",      "fields": ['mobile']},
@@ -98,7 +97,6 @@ if __name__ == '__main__':
         if is_attr(result[1], ["objectGUID"]):
             uid = get_attr(result[1], "objectGUID")
             rest_data = {'REV': datetime.utcnow().strftime('%Y%m%dT%H%M%SZ')}
-            # rest_data['REV'] = datetime.utcnow().strftime('%Y%m%dT%H%M%SZ')
             for attr in DEFAULT_ATTRS:
                 field, val = attr.split(':')
                 rest_data[field] = val
@@ -106,15 +104,12 @@ if __name__ == '__main__':
                 if is_attr(result[1], field_map[field]["fields"]):
                     rest_data[field] = field_map[field]["template"] % (get_attrs(result[1], field_map[field]["fields"]))
             # print(rest_data)
-            # response = requests.put(VCARD_SERVER_URL.format(uid), data=json.dumps(rest_data), headers=headers)
-            # resp = json.loads(response.text)
-            # new_count += int(resp[str(uid)]['new'])
-            # updated_count += int(resp[str(uid)]['updated'])
-            # print('{} {} {}: [{},{}]'.format(uid, get_attrs(result[1], ['sn'])[0],
-            #                                  get_attrs(result[1], ['givenName'])[0], resp[str(uid)]['updated'],
-            #                                  resp[str(uid)]['new']))
-            # print('New: {} Updated: {}'.format(updated_count,new_count))
-            r = requests.delete(VCARDS_URL.format(uid), headers=headers)
+            # response = requests.delete(VCARDS_URL.format(uid), headers=headers)
             # r.raise_for_status()
-
-    # print(datetime.utcnow().strftime('%Y%m%dT%H%M%SZ'))
+            response = requests.put(SYNC_URL.format(uid), json=rest_data, headers=headers)
+            resp = json.loads(response.text)
+            new_count += int(resp[str(uid)]['new'])
+            updated_count += int(resp[str(uid)]['updated'])
+            print('{} {}: [u:{},n:{}]'.format(uid, get_attrs(result[1], ['displayName'])[0], resp[str(uid)]['updated'],
+                                              resp[str(uid)]['new']))
+    print('New: {} Updated: {}'.format(new_count, updated_count))
