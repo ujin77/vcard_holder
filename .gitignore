@@ -2,3 +2,6 @@ venv/*
 *.db
 .idea/*
 config.py
+*.jpg
+*.jpeg
+avatars/*

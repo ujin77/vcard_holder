@@ -1,3 +1,4 @@
+import os
 from vcholder_app import app
 from vcholder_app import db
 from flask import render_template, url_for
@@ -7,6 +8,7 @@ from flask import abort
 from flask import Response
 from functools import wraps
 from vcholder_app.models import VCard
+import base64
 
 
 def require_appkey(view_function):
@@ -38,11 +40,34 @@ def ldap_sync(uid, data):
     return updated, inserted
 
 
+def is_photo(uid):
+    return os.path.isfile('{}/static/images/{}.jpeg'.format(app.root_path, uid))
+
+
+def url_photo(uid):
+    if is_photo(str(uid)):
+        return url_for('static', filename='images/{}.jpeg'.format(uid), _external=True)
+    return None
+
+
+def get_image(uid, type='PHOTO'):
+    file_name = '{}/avatars/{}.jpeg'.format(app.root_path, str(uid))
+    if os.path.isfile(file_name):
+        data = open(file_name, 'rb').read()
+        return "{};TYPE=JPEG;ENCODING=b:{}".format(type, base64.b64encode(data).decode())
+    return None
+
+
 def render_vcf(items, uid):
     vcl = ['BEGIN:VCARD', 'VERSION:3.0']
+    avatar = get_image(str(uid), 'PHOTO')
+    if not avatar:
+        avatar = get_image('00000000-0000-0000-0000-000000000000', 'PHOTO')
     for vc_item in items:
         vcl.append('%s:%s' % (vc_item.vc_property, vc_item.vc_value))
-    # vcl.append('UID:%s' % uid)
+    if avatar:
+        vcl.append(avatar)
+    vcl.append('UID:%s' % uid)
     vcl.append('END:VCARD')
     headers = {'Content-Disposition': 'inline; filename="%s.vcf"' % str(uid)}
     return Response("\n".join(vcl), mimetype="text/x-vcard", headers=headers)
@@ -76,7 +101,8 @@ def get_card(uid):
     if request.args.get('html'):
         return render_template('vcard.html', uid=str(uid),
                                vcard_items=vcard_items,
-                               href=url_for('get_card', uid=str(uid)))
+                               href=url_for('get_card', uid=str(uid)),
+                               photo=url_photo(str(uid)))
     return render_vcf(vcard_items, str(uid))
 
 

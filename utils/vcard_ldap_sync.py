@@ -14,9 +14,20 @@ VCARD_SERVER_URL = cfg.VCARD_SERVER + '/api/v1.0/sync/{}'
 token = "my token"
 headers = {'Authorization': 'Bearer ' + token, "Content-Type": "application/json", 'x-api-key': cfg.API_KEY}
 
+"""
+N: LASTNAME; FIRSTNAME; ADDITIONAL NAME; NAME PREFIX(Mr.,Mrs.); NAME SUFFIX
+ADR;TYPE=home:;;123 Main St.;Springfield;IL;12345;USA
+ORG:Google;GMail Team;Spam Detection Squad
+PHOTO;TYPE=JPEG;ENCODING=b:[base64-data]
+ROLE:Executive
+TITLE:V.P. Research and Development
+ADR;TYPE=home:;;123 Main St.;Springfield;IL;12345;USA
+LOGO;TYPE=PNG;ENCODING=b:[base64-data]
+"""
+
 field_map = {
     "FN;CHARSET=UTF-8":     {"template": "%s %s",   "fields": ['givenName', 'sn']},
-    "N;CHARSET=UTF-8":      {"template": "%s;%s",   "fields": ['sn', 'givenName']},
+    "N;CHARSET=UTF-8":      {"template": "%s;%s;;;",   "fields": ['sn', 'givenName']},
     "TEL;WORK;VOICE":       {"template": "%s",      "fields": ['telephoneNumber']},
     "TEL;CELL;VOICE":       {"template": "%s",      "fields": ['mobile']},
     "TITLE;CHARSET=UTF-8":  {"template": "%s",      "fields": ['displayName']},

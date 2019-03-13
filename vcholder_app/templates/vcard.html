@@ -5,6 +5,10 @@
     <title>VCARD: {{ uid }}</title>
 </head>
 <body>
+{% if photo %}
+<img src="{{ photo }}">
+<hr />
+{% endif %}
 VCARD: <a href="{{ href }}">{{ uid }}</a>
 <hr />
 BEGIN:VCARD<br />

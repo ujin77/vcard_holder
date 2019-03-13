@@ -17,3 +17,5 @@ import vcholder_app.models
 
 # db.drop_all()
 db.create_all()
+
+print(app.root_path)
