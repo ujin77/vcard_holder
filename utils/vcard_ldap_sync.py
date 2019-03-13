@@ -7,9 +7,21 @@ import re
 
 import config
 
-cfg = config.TestConfig
+# cfg = config.TestConfig
+cfg = config.ProductionConfig
+
+API_KEY = cfg.API_KEY
+VCARD_SERVER = cfg.VCARD_SERVER
+LDAP_PROVIDER_URL = cfg.LDAP_PROVIDER_URL
+LDAP_BIND_DN = cfg.LDAP_BIND_DN
+LDAP_BIND_PW = cfg.LDAP_BIND_PW
+LDAP_BASE_DN = cfg.LDAP_BASE_DN
 
 VCARD_SERVER_URL = cfg.VCARD_SERVER + '/api/v1.0/sync/{}'
+LDAP_RETRIEVE_ATTRIBUTES = ["sn", "givenName", "displayName", "telephoneNumber", "mobile", "thumbnailPhoto", "mail",
+                            "objectGUID", "title", "department", "company"]
+LDAP_SEARCH_FILTER = u'(&(objectClass=user)(objectClass=top)(objectClass=person))'
+LDAP_PROTOCOL_VERSION = 3
 
 token = "my token"
 headers = {'Authorization': 'Bearer ' + token, "Content-Type": "application/json", 'x-api-key': cfg.API_KEY}
@@ -30,9 +42,10 @@ field_map = {
     "N;CHARSET=UTF-8":      {"template": "%s;%s;;;",   "fields": ['sn', 'givenName']},
     "TEL;WORK;VOICE":       {"template": "%s",      "fields": ['telephoneNumber']},
     "TEL;CELL;VOICE":       {"template": "%s",      "fields": ['mobile']},
-    "TITLE;CHARSET=UTF-8":  {"template": "%s",      "fields": ['displayName']},
+    "TITLE;CHARSET=UTF-8":  {"template": "%s",      "fields": ['title']},
     "EMAIL;TYPE=work":      {"template": "%s",      "fields": ['mail']},
-    "PHOTO;ENCODING=BASE64;TYPE=JPEG": {"template": "%s", "fields": ['thumbnailPhoto']}
+    "PHOTO;ENCODING=BASE64;TYPE=JPEG": {"template": "%s", "fields": ['thumbnailPhoto']},
+    "ORG": {"template": "%s;%s", "fields": ['company', 'department']}
 }
 
 
@@ -70,23 +83,19 @@ def is_attr(data, attr_names):
 
 if __name__ == '__main__':
 
-    con = ldap.initialize(cfg.LDAP_PROVIDER_URL, bytes_mode=False)
-    con.simple_bind_s(cfg.LDAP_BIND_DN, cfg.LDAP_BIND_PW)
-    results = con.search_s(cfg.LDAP_BASE_DN, ldap.SCOPE_SUBTREE, cfg.LDAP_SEARCH_FILTER, cfg.LDAP_RETRIEVE_ATTRIBUTES)
+    con = ldap.initialize(LDAP_PROVIDER_URL, bytes_mode=False)
+    con.simple_bind_s(LDAP_BIND_DN, LDAP_BIND_PW)
+    results = con.search_s(LDAP_BASE_DN, ldap.SCOPE_SUBTREE, LDAP_SEARCH_FILTER, LDAP_RETRIEVE_ATTRIBUTES)
 
     for result in results:
         if is_attr(result[1], ["objectGUID"]):
             uid = get_attr(result[1], "objectGUID")
             rest_data = {}
-            print(uid, get_attrs(result[1], ['sn', 'givenName']))
             for field in field_map:
                 if is_attr(result[1], field_map[field]["fields"]):
                     rest_data[field] = field_map[field]["template"] % (get_attrs(result[1], field_map[field]["fields"]))
             response = requests.put(VCARD_SERVER_URL.format(uid), data=json.dumps(rest_data), headers=headers)
-            print(response.text)
             resp = json.loads(response.text)
-            if resp[str(uid)]['new'] > 0:
-                print(uid, 'new', resp[str(uid)]['new'])
-            if resp[str(uid)]['updated'] > 0:
-                print(uid, 'updated', resp[str(uid)]['updated'])
-            # print(resp[str(uid)]['updated'])
+            print('{} {} {}: [{},{}]'.format(uid, get_attrs(result[1], ['sn'])[0],
+                                             get_attrs(result[1], ['givenName'])[0], resp[str(uid)]['new'],
+                                             resp[str(uid)]['updated']))
