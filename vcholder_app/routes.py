@@ -120,7 +120,7 @@ def delete_card(uid):
     for vcard in vcards:
         db.session.delete(vcard)
     db.session.commit()
-    return jsonify({uid: 'OK'})
+    return jsonify({str(uid): 'DELETED'})
 
 
 @app.route('/api/v1.0/avatars/<uuid(strict=False):uid>', methods=['GET'])
