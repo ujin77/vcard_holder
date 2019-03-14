@@ -6,7 +6,16 @@ from flask import render_template, url_for, send_file
 from flask import jsonify, request, abort, Response
 from functools import wraps
 from vcholder_app.models import VCard
-# import base64
+import base64
+
+mimetypemap = {
+    'gif': 'image/gif',
+    'ico': 'image/vnd.microsoft.icon',
+    'jpe': 'image/jpeg',
+    'jpeg': 'image/jpeg',
+    'jpg': 'image/jpeg',
+    'png': 'image/png',
+}
 
 
 def require_appkey(view_function):
@@ -47,13 +56,17 @@ def get_image(uid, attr='PHOTO'):
     return None
 
 
+def get_avatar_file_name(uid):
+    return '.'.join([uid, app.config['AVATAR_FILE_TYPE']])
+
+
 def get_avatar_path(uid=None):
     if not uid:
         uid = app.config['DEFAULT_UUID']
-    return os.path.join(app.root_path, 'avatars', '.'.join([uid, app.config['AVATAR_FILE_TYPE']]))
+    return os.path.join(app.root_path, 'avatars', get_avatar_file_name(uid))
 
 
-def get_avatar_file_name(uid):
+def get_avatar_file_path(uid):
     if os.path.isfile(get_avatar_path(uid)):
         return get_avatar_path(uid)
     if os.path.isfile(get_avatar_path()):
@@ -76,13 +89,13 @@ def render_vcf(items, uid):
     return Response("\n".join(vcl), mimetype="text/x-vcard", headers=headers)
 
 
-def render_qrcode(items, uid):
-    vcl = ['BEGIN:VCARD', 'VERSION:3.0']
-    for vc_item in items:
-        vcl.append('%s:%s' % (vc_item.vc_property, vc_item.vc_value))
-    vcl.append('UID:%s' % uid)
-    vcl.append('END:VCARD')
-    return send_file(qrcode("\n".join(vcl), mode='raw'), mimetype='image/png')
+# def render_qrcode(items, uid):
+#     vcl = ['BEGIN:VCARD', 'VERSION:3.0']
+#     for vc_item in items:
+#         vcl.append('%s:%s' % (vc_item.vc_property, vc_item.vc_value))
+#     vcl.append('UID:%s' % uid)
+#     vcl.append('END:VCARD')
+#     return send_file(qrcode("\n".join(vcl), mode='raw'), mimetype='image/png')
 
 
 @app.route('/index')
@@ -138,11 +151,11 @@ def delete_card(uid):
 
 @app.route('/api/v1.0/avatars/<uuid(strict=False):uid>', methods=['GET'])
 def get_avatar(uid):
-    file_name = get_avatar_file_name(str(uid))
+    file_name = get_avatar_file_path(str(uid))
     if file_name:
         with open(file_name, 'rb') as bites:
-            return send_file(io.BytesIO(bites.read()), attachment_filename='{}.jpeg'.format(str(uid)),
-                             mimetype='image/jpg')
+            return send_file(io.BytesIO(bites.read()), attachment_filename=get_avatar_file_name(str(uid)),
+                             mimetype=mimetypemap[app.config['AVATAR_FILE_TYPE']])
     abort(404)
 
 
