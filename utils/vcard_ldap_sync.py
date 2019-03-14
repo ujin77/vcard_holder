@@ -87,6 +87,25 @@ def is_attr(data, attr_names):
     return False
 
 
+def request_delete(uid):
+    response = requests.delete(VCARDS_URL.format(uid), headers=headers)
+    requests.raise_for_status()
+
+
+def request_put(uid, rest_data):
+    response = requests.put(SYNC_URL.format(uid), json=rest_data, headers=headers)
+    try:
+        resp = json.loads(response.text)
+        new_count += int(resp[str(uid)]['new'])
+        updated_count += int(resp[str(uid)]['updated'])
+        print('{} {}: [u:{},n:{}]'.format(uid, get_attrs(result[1], ['displayName'])[0],
+                                          resp[str(uid)]['updated'], resp[str(uid)]['new']))
+    except Exception as e:
+        print(e)
+        print(headers)
+        print(response.text)
+        break
+
 if __name__ == '__main__':
 
     con = ldap.initialize(LDAP_PROVIDER_URL, bytes_mode=False)
@@ -107,8 +126,7 @@ if __name__ == '__main__':
                     rest_data[field] = field_map[field]["template"] % (get_attrs(result[1], field_map[field]["fields"]))
 
             # print(rest_data)
-            # response = requests.delete(VCARDS_URL.format(uid), headers=headers)
-            # r.raise_for_status()
+            # request_delete(uid)
             response = requests.put(SYNC_URL.format(uid), json=rest_data, headers=headers)
             try:
                 resp = json.loads(response.text)

@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link href="/static/main.css" rel="stylesheet">
+</head>
+<body>
+<center>
+<br />
+<table>
+    {% for item in vcards %}
+    <tr>
+        <td><a href="{{ url_for('get_card', uid=item.uid, html='1') }}">{{ item.vc_value }}</a></td>
+        {% if show_images %}
+        <td><img src="{{ url_for('get_avatar', uid=item.uid) }}"></td>
+        <td><a href="{{ url_for('get_card', uid=item.uid) }}">
+            <img src="{{ url_for('get_qrcode', uid=item.uid) }}"></a></td>
+        {% else %}
+        <td style="display:none;"></td>
+        {% endif %}
+    </tr>
+    {% endfor %}
+</table>
+</center>
+
+</body>
+</html>

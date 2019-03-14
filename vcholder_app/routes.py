@@ -149,6 +149,16 @@ def delete_card(uid):
     return jsonify({str(uid): 'DELETED'})
 
 
+@app.route('/api/v1.0/contacts', methods=['GET'])
+@require_appkey
+def get_contacts():
+    vcards = VCard.query.filter(VCard.vc_property.startswith('FN')).order_by(VCard.vc_property).all()
+    show_images = request.args.get('images')
+    if not vcards:
+        abort(404)
+    return render_template('contacts.html', vcards=vcards, show_images=show_images)
+
+
 @app.route('/api/v1.0/avatars/<uuid(strict=False):uid>', methods=['GET'])
 def get_avatar(uid):
     file_name = get_avatar_file_path(str(uid))
