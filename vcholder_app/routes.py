@@ -12,8 +12,9 @@ import base64
 def require_appkey(view_function):
     @wraps(view_function)
     def decorated_function(*args, **kwargs):
-        # if request.args.get('key') and request.args.get('key') == app.config['API_KEY']:
         if request.headers.get('x-api-key') and request.headers.get('x-api-key') == app.config['API_KEY']:
+            return view_function(*args, **kwargs)
+        elif request.args.get('api-key') and request.args.get('api-key') == app.config['API_KEY']:
             return view_function(*args, **kwargs)
         else:
             abort(401)
