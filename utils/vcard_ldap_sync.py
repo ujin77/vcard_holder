@@ -106,13 +106,19 @@ if __name__ == '__main__':
                 if is_attr(result[1], field_map[field]["fields"]):
                     rest_data[field] = field_map[field]["template"] % (get_attrs(result[1], field_map[field]["fields"]))
 
-            print(rest_data)
+            # print(rest_data)
             # response = requests.delete(VCARDS_URL.format(uid), headers=headers)
             # r.raise_for_status()
             response = requests.put(SYNC_URL.format(uid), json=rest_data, headers=headers)
-            resp = json.loads(response.text)
-            new_count += int(resp[str(uid)]['new'])
-            updated_count += int(resp[str(uid)]['updated'])
-            print('{} {}: [u:{},n:{}]'.format(uid, get_attrs(result[1], ['displayName'])[0], resp[str(uid)]['updated'],
-                                              resp[str(uid)]['new']))
+            try:
+                resp = json.loads(response.text)
+                new_count += int(resp[str(uid)]['new'])
+                updated_count += int(resp[str(uid)]['updated'])
+                print('{} {}: [u:{},n:{}]'.format(uid, get_attrs(result[1], ['displayName'])[0],
+                                                  resp[str(uid)]['updated'], resp[str(uid)]['new']))
+            except Exception as e:
+                print(e)
+                print(headers)
+                print(response.text)
+                break
     print('New: {} Updated: {}'.format(new_count, updated_count))

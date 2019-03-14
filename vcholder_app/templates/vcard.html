@@ -5,18 +5,15 @@
     <title>VCARD: {{ uid }}</title>
 </head>
 <body>
+<center>
+    <!--
 <img src="{{ url_for('get_avatar', uid=uid) }}">
+<br />
+-->
+<br />
 <img src="{{ url_for('get_qrcode', uid=uid) }}">
-<hr />
-<p>
-BEGIN:VCARD<br />
-VERSION:3.0<br />
-{% for item in vcard_items %}
-{{ item.vc_property }}:{{ item.vc_value }}<br />
-{% endfor %}
-END:VCARD
-</p>
-<hr />
-<a href="{{ url_for('get_card', uid=uid) }}">Download VCARD</a>
+</center>
+<!--
+<hr /><a href="{{ url_for('get_card', uid=uid) }}">Download VCARD</a>-->
 </body>
 </html>

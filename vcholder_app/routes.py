@@ -161,7 +161,6 @@ def get_avatar(uid):
 
 @app.route('/api/v1.0/qrcode/<uuid(strict=False):uid>', methods=['GET'])
 def get_qrcode(uid):
-    vcard_items = VCard.query.filter_by(uid=str(uid)).all()
-    if not vcard_items:
+    if not VCard.query.filter_by(uid=str(uid)).first():
         abort(404)
     return send_file(qrcode(url_for('get_card', uid=str(uid), _external=True), mode='raw'), mimetype='image/png')
