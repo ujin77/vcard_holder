@@ -5,3 +5,5 @@ config.py
 *.jpg
 *.jpeg
 avatars/*
+*.cfg
+*.config

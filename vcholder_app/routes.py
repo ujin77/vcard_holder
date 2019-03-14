@@ -6,7 +6,7 @@ from flask import render_template, url_for, send_file
 from flask import jsonify, request, abort, Response
 from functools import wraps
 from vcholder_app.models import VCard
-import base64
+# import base64
 
 
 def require_appkey(view_function):
@@ -39,14 +39,6 @@ def ldap_sync(uid, data):
     return updated, inserted
 
 
-def url_photo(uid):
-    if os.path.isfile('{}/avatars/{}.jpeg'.format(app.root_path, str(uid))):
-        return url_for('get_avatar', uid=str(uid))
-    elif os.path.isfile('{}/avatars/00000000-0000-0000-0000-000000000000.jpeg'.format(app.root_path)):
-        return url_for('get_avatar', uid='00000000-0000-0000-0000-000000000000')
-    return None
-
-
 def get_image(uid, attr='PHOTO'):
     file_name = '{}/avatars/{}.jpeg'.format(app.root_path, str(uid))
     if os.path.isfile(file_name):
@@ -55,11 +47,25 @@ def get_image(uid, attr='PHOTO'):
     return None
 
 
+def get_avatar_path(uid=None):
+    if not uid:
+        uid = app.config['DEFAULT_UUID']
+    return os.path.join(app.root_path, 'avatars', '.'.join([uid, app.config['AVATAR_FILE_TYPE']]))
+
+
+def get_avatar_file_name(uid):
+    if os.path.isfile(get_avatar_path(uid)):
+        return get_avatar_path(uid)
+    if os.path.isfile(get_avatar_path()):
+        return get_avatar_path()
+    return None
+
+
 def render_vcf(items, uid):
     vcl = ['BEGIN:VCARD', 'VERSION:3.0']
     avatar = get_image(str(uid), 'PHOTO')
     if not avatar:
-        avatar = get_image('00000000-0000-0000-0000-000000000000', 'PHOTO')
+        avatar = get_image(app.config['DEFAULT_UUID'], 'PHOTO')
     for vc_item in items:
         vcl.append('%s:%s' % (vc_item.vc_property, vc_item.vc_value))
     if avatar:
@@ -81,7 +87,7 @@ def render_qrcode(items, uid):
 
 @app.route('/index')
 def index():
-    uid = '00000000-0000-0000-0000-000000000000'
+    uid = app.config['DEFAULT_UUID']
     items = VCard.query.filter_by(uid=uid).all()
     if not items:
         abort(404)
@@ -105,11 +111,7 @@ def get_card(uid):
     if not vcard_items:
         abort(404)
     if request.args.get('html'):
-        return render_template('vcard.html', uid=str(uid),
-                               vcard_items=vcard_items,
-                               href=url_for('get_card', uid=str(uid)),
-                               photo=url_photo(str(uid)),
-                               qr=url_for('get_qrcode', uid=str(uid)))
+        return render_template('vcard.html', uid=str(uid), vcard_items=vcard_items)
     return render_vcf(vcard_items, str(uid))
 
 
@@ -136,8 +138,8 @@ def delete_card(uid):
 
 @app.route('/api/v1.0/avatars/<uuid(strict=False):uid>', methods=['GET'])
 def get_avatar(uid):
-    file_name = '{}/avatars/{}.jpeg'.format(app.root_path, str(uid))
-    if os.path.isfile(file_name):
+    file_name = get_avatar_file_name(str(uid))
+    if file_name:
         with open(file_name, 'rb') as bites:
             return send_file(io.BytesIO(bites.read()), attachment_filename='{}.jpeg'.format(str(uid)),
                              mimetype='image/jpg')
