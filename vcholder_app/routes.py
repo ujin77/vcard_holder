@@ -17,6 +17,8 @@ mimetypemap = {
     'png': 'image/png',
 }
 
+TRUE_MAP = ['true', '1', 't', 'y', 'yes', 'Y', 'True', 'YES', 'show']
+
 
 def require_appkey(view_function):
     @wraps(view_function)
@@ -89,6 +91,10 @@ def render_vcf(items, uid):
     return Response("\n".join(vcl), mimetype="text/x-vcard", headers=headers)
 
 
+def bool_request_arg(arg_name):
+    return request.args.get(arg_name) in TRUE_MAP
+
+
 # def render_qrcode(items, uid):
 #     vcl = ['BEGIN:VCARD', 'VERSION:3.0']
 #     for vc_item in items:
@@ -157,10 +163,10 @@ def delete_card(uid):
 @require_appkey
 def get_contacts():
     vcards = VCard.query.filter(VCard.vc_property.startswith('FN')).order_by(VCard.vc_value).all()
-    show_images = request.args.get('images')
     if not vcards:
         abort(404)
-    return render_template('contacts.html', vcards=vcards, show_images=show_images)
+    return render_template('contacts.html', vcards=vcards, show_images=True,
+                           show_avatars=bool_request_arg('avatars'), show_qrcodes=bool_request_arg('qrcodes'))
 
 
 @app.route('/api/v1.0/avatars/<uuid(strict=False):uid>', methods=['GET'])

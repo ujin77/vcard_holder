@@ -7,17 +7,19 @@
 </head>
 <body>
 <center>
-<br />
 <table>
     {% for item in vcards %}
     <tr>
         <td><a href="{{ url_for('get_card', uid=item.uid, html='1') }}">{{ item.vc_value }}</a></td>
-        {% if show_images %}
+        {% if show_avatars %}
         <td><a href="{{ url_for('get_card_short', uid=item.uid, html='1') }}">
             <img src="{{ url_for('get_avatar', uid=item.uid) }}"></a></td>
+        {% endif %}
+        {% if show_qrcodes %}
         <td><a href="{{ url_for('get_card', uid=item.uid) }}">
             <img src="{{ url_for('get_qrcode', uid=item.uid) }}"></a></td>
-        {% else %}
+        {% endif %}
+        {% if not show_avatars and not show_qrcodes%}
         <td style="display:none;"></td>
         {% endif %}
     </tr>
