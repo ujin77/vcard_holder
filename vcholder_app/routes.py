@@ -156,7 +156,7 @@ def delete_card(uid):
 @app.route('/api/v1.0/contacts', methods=['GET'])
 @require_appkey
 def get_contacts():
-    vcards = VCard.query.filter(VCard.vc_property.startswith('FN')).order_by(VCard.vc_property).all()
+    vcards = VCard.query.filter(VCard.vc_property.startswith('FN')).order_by(VCard.vc_value).all()
     show_images = request.args.get('images')
     if not vcards:
         abort(404)
@@ -177,5 +177,5 @@ def get_avatar(uid):
 def get_qrcode(uid):
     if not VCard.query.filter_by(uid=str(uid)).first():
         abort(404)
-    return send_file(qrcode(url_for('get_card_short', uid=str(uid.hex), _external=True), mode='raw'),
+    return send_file(qrcode(url_for('get_card_short', uid=uid.hex, _external=True), mode='raw'),
                      mimetype='image/png')

@@ -13,7 +13,8 @@
     <tr>
         <td><a href="{{ url_for('get_card', uid=item.uid, html='1') }}">{{ item.vc_value }}</a></td>
         {% if show_images %}
-        <td><img src="{{ url_for('get_avatar', uid=item.uid) }}"></td>
+        <td><a href="{{ url_for('get_card_short', uid=item.uid, html='1') }}">
+            <img src="{{ url_for('get_avatar', uid=item.uid) }}"></a></td>
         <td><a href="{{ url_for('get_card', uid=item.uid) }}">
             <img src="{{ url_for('get_qrcode', uid=item.uid) }}"></a></td>
         {% else %}
