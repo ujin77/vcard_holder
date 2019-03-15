@@ -3,7 +3,7 @@ import io
 from vcholder_app import app
 from vcholder_app import db, qrcode
 from flask import render_template, url_for, send_file
-from flask import jsonify, request, abort, Response
+from flask import jsonify, request, abort, Response, flash, redirect, send_from_directory
 from functools import wraps
 from vcholder_app.models import VCard
 import base64
@@ -86,12 +86,15 @@ def render_vcf(items, uid):
         avatar = get_image(app.config['DEFAULT_UUID'], 'PHOTO')
     for vc_item in items:
         vcl.append('%s:%s' % (vc_item.vc_property, vc_item.vc_value))
+        # if vc_item.vc_property[:2] == 'FN':
+        #     print(vc_item.vc_value)
     if avatar:
         vcl.append(avatar)
     vcl.append('UID:%s' % uid)
     vcl.append('END:VCARD')
-    headers = {'Content-Disposition': 'inline; filename="%s.vcf"' % str(uid)}
-    return Response("\n".join(vcl), mimetype="text/x-vcard", headers=headers)
+    # headers = {'Content-Disposition': 'inline; filename="%s.vcf"' % str(uid)}
+    # return Response("\n".join(vcl), mimetype="text/x-vcard", headers=headers)
+    return Response("\n".join(vcl), content_type="text/x-vcard")
 
 
 def bool_request_arg(arg_name):
@@ -128,7 +131,13 @@ def sync_vcard(uid):
 
 @app.route('/<string:uid>', methods=['GET'])
 def get_card_short(uid):
+    print(uid)
     return get_card(suuid_decode(uid))
+
+
+@app.route('/favicon.ico')
+def favicon():
+    abort(404)
 
 
 @app.route('/api/v1.0/vcards/<uuid(strict=False):uid>', methods=['GET'])
@@ -188,9 +197,41 @@ def get_avatar(uid):
     abort(404)
 
 
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in [app.config['AVATAR_FILE_TYPE'], 'jpg']
+
+
+def secure_filename(filename):
+    return filename
+
+
+@app.route('/api/v1.0/avatars/upload', methods=['GET', 'POST'])
+def get_avatar_upload():
+    if request.method == 'POST':
+        if 'file' not in request.files:
+            flash('No file part')
+            return redirect(request.url)
+        file = request.files['file']
+        if file.filename == '':
+            flash('No selected file')
+            return redirect(request.url)
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file.save(os.path.join(app.root_path, 'avatars', filename))
+            return redirect(url_for('uploaded_file', filename=filename))
+    return render_template('upload.html')
+
+
+@app.route('/api/v1.0/avatars/uploads/<filename>')
+def uploaded_file(filename):
+    return send_from_directory(os.path.join(app.root_path, 'avatars'), filename)
+
+
 @app.route('/api/v1.0/qrcode/<uuid(strict=False):uid>', methods=['GET'])
 def get_qrcode(uid):
     if not VCard.query.filter_by(uid=str(uid)).first():
         abort(404)
     return send_file(qrcode(url_for('get_card_short', uid=suuid_encode(uid), _external=True), mode='raw'),
                      mimetype='image/png')
+
