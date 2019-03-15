@@ -7,6 +7,9 @@ from flask import jsonify, request, abort, Response
 from functools import wraps
 from vcholder_app.models import VCard
 import base64
+from shortuuid import encode as suuid_encode
+from shortuuid import decode as suuid_decode
+
 
 mimetypemap = {
     'gif': 'image/gif',
@@ -125,7 +128,7 @@ def sync_vcard(uid):
 
 @app.route('/<uuid(strict=False):uid>', methods=['GET'])
 def get_card_short(uid):
-    return get_card(uid)
+    return get_card(suuid_decode(uid))
 
 
 @app.route('/api/v1.0/vcards/<uuid(strict=False):uid>', methods=['GET'])
@@ -183,5 +186,5 @@ def get_avatar(uid):
 def get_qrcode(uid):
     if not VCard.query.filter_by(uid=str(uid)).first():
         abort(404)
-    return send_file(qrcode(url_for('get_card_short', uid=uid.hex, _external=True), mode='raw'),
+    return send_file(qrcode(url_for('get_card_short', uid=suuid_encode(uid), _external=True), mode='raw'),
                      mimetype='image/png')
