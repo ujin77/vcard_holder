@@ -118,6 +118,10 @@ def sync_vcard(uid):
 
 
 @app.route('/<uuid(strict=False):uid>', methods=['GET'])
+def get_card_short(uid):
+    return get_card(uid)
+
+
 @app.route('/api/v1.0/vcards/<uuid(strict=False):uid>', methods=['GET'])
 def get_card(uid):
     vcard_items = VCard.query.filter_by(uid=str(uid)).all()
@@ -173,4 +177,5 @@ def get_avatar(uid):
 def get_qrcode(uid):
     if not VCard.query.filter_by(uid=str(uid)).first():
         abort(404)
-    return send_file(qrcode(url_for('get_card', uid=str(uid), _external=True), mode='raw'), mimetype='image/png')
+    return send_file(qrcode(url_for('get_card_short', uid=str(uid.hex), _external=True), mode='raw'),
+                     mimetype='image/png')
