@@ -126,7 +126,7 @@ def sync_vcard(uid):
     return jsonify({str(uid): {'updated': u, 'new': i}})
 
 
-@app.route('/<uuid(strict=False):uid>', methods=['GET'])
+@app.route('/<string:uid>', methods=['GET'])
 def get_card_short(uid):
     return get_card(suuid_decode(uid))
 

@@ -7,8 +7,8 @@ import json
 import requests
 import config
 
-# cfg = config.TestConfig
-cfg = config.ProductionConfig
+cfg = config.TestConfig
+# cfg = config.ProductionConfig
 
 API_KEY = cfg.API_KEY
 VCARD_SERVER = cfg.VCARD_SERVER
@@ -104,7 +104,9 @@ def request_put(uid, rest_data):
         print(e)
         print(headers)
         print(response.text)
-        break
+        return False
+    return True
+
 
 if __name__ == '__main__':
 
