@@ -153,13 +153,19 @@ def add_card(uid):
 @app.route('/api/v1.0/vcards/<uuid(strict=False):uid>', methods=['DELETE'])
 @require_appkey
 def delete_card(uid):
-    vcards = VCard.query.filter_by(uid=str(uid)).all()
-    if not vcards:
+    if not VCard.query.filter_by(uid=str(uid)).first():
         abort(404)
-    for vcard in vcards:
-        db.session.delete(vcard)
+    db.session.query(VCard).filter(VCard.uid == str(uid)).delete()
     db.session.commit()
     return jsonify({str(uid): 'DELETED'})
+
+
+@app.route('/api/v1.0/vcards/all', methods=['DELETE'])
+@require_appkey
+def delete_all():
+    db.session.query(VCard).delete()
+    db.session.commit()
+    return jsonify({'all': 'DELETED'})
 
 
 @app.route('/api/v1.0/contacts', methods=['GET'])

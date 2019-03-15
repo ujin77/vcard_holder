@@ -20,10 +20,12 @@ DEFAULT_ATTRS = cfg.DEFAULT_ATTRS
 
 SYNC_URL = cfg.VCARD_SERVER + '/api/v1.0/sync/{}'
 VCARDS_URL = cfg.VCARD_SERVER + '/api/v1.0/vcards/{}'
+VCARDS_ALL_URL = cfg.VCARD_SERVER + '/api/v1.0/vcards/all'
 
 LDAP_RETRIEVE_ATTRIBUTES = ["sn", "givenName", "displayName", "telephoneNumber", "mobile", "mail",
                             "objectGUID", "title", "department", "company", "description"]
-LDAP_SEARCH_FILTER = u'(&(objectClass=user)(objectClass=top)(objectClass=person))'
+LDAP_SEARCH_FILTER = u'(&(objectClass=top)(objectClass=person)(!(userAccountControl:1.2.840.113556.1.4.803:=2)))'
+# LDAP_SEARCH_FILTER = u'(&(objectClass=user)(objectClass=top)(objectClass=person))'
 LDAP_PROTOCOL_VERSION = 3
 
 token = "my token"
@@ -88,8 +90,15 @@ def is_attr(data, attr_names):
 
 
 def request_delete(uid):
-    response = requests.delete(VCARDS_URL.format(uid), headers=headers)
-    requests.raise_for_status()
+    resp = requests.delete(VCARDS_URL.format(uid), headers=headers)
+    print(resp.status_code, resp.json())
+    # requests.raise_for_status()
+
+
+def request_delete_all():
+    resp = requests.delete(VCARDS_ALL_URL, headers=headers)
+    print(resp.status_code, resp.json())
+    # requests.raise_for_status()
 
 
 def request_put(uid, rest_data):
@@ -116,10 +125,11 @@ if __name__ == '__main__':
 
     updated_count = 0
     new_count = 0
+    # request_delete_all()
     for result in results:
         if is_attr(result[1], ["objectGUID"]):
             uid = get_attr(result[1], "objectGUID")
-            rest_data = {'REV': datetime.utcnow().strftime('%Y%m%dT%H%M%SZ')}
+            rest_data = {'REV': datetime.utcnow().strftime('%Y-%m-%dT%H%M%SZ')}
             for attr in DEFAULT_ATTRS:
                 field, val = attr.split(':', 1)
                 rest_data[field] = val
@@ -131,14 +141,14 @@ if __name__ == '__main__':
             # request_delete(uid)
             response = requests.put(SYNC_URL.format(uid), json=rest_data, headers=headers)
             try:
-                resp = json.loads(response.text)
+                resp = response.json()
                 new_count += int(resp[str(uid)]['new'])
                 updated_count += int(resp[str(uid)]['updated'])
-                print('{} {}: [u:{},n:{}]'.format(uid, get_attrs(result[1], ['displayName'])[0],
+                print('{} {}: {}[u:{},n:{}]'.format(uid, get_attrs(result[1], ['displayName'])[0], response.status_code,
                                                   resp[str(uid)]['updated'], resp[str(uid)]['new']))
             except Exception as e:
-                print(e)
+                print(response.status_code, response.text)
                 print(headers)
-                print(response.text)
+                print(e)
                 break
     print('New: {} Updated: {}'.format(new_count, updated_count))
