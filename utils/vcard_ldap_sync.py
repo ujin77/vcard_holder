@@ -7,8 +7,8 @@ import json
 import requests
 import config
 
-cfg = config.TestConfig
-# cfg = config.ProductionConfig
+# cfg = config.TestConfig
+cfg = config.ProductionConfig
 
 API_KEY = cfg.API_KEY
 VCARD_SERVER = cfg.VCARD_SERVER
@@ -125,7 +125,7 @@ if __name__ == '__main__':
 
     updated_count = 0
     new_count = 0
-    # request_delete_all()
+    request_delete_all()
     for result in results:
         if is_attr(result[1], ["objectGUID"]):
             uid = get_attr(result[1], "objectGUID")
