@@ -1,4 +1,14 @@
 from vcholder_app import db
+import uuid
+
+
+def on_init_db():
+    db.create_all()
+    # db.session.delete(User.query.first())
+    # db.session.commit()
+    if not User.query.first():
+        db.session.add(User('admin', 'admin'))
+        db.session.commit()
 
 
 class VCard(db.Model):
@@ -15,3 +25,28 @@ class VCard(db.Model):
 
     def __repr__(self):
         return '<VCard [%i]%s:%s>' % (self.id, self.uid, self.vc_property)
+
+
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(100), nullable=False)
+    password = db.Column(db.String(100), nullable=False)
+    api_key = db.Column(db.String(100), nullable=False)
+    # last_login =
+
+    def __init__(self, username, password):
+        self.username = username
+        self.password = password
+        self.api_key = uuid.uuid4().hex
+
+    def is_active(self):
+        return True
+
+    def is_authenticated(self):
+        return True
+
+    def is_anonymous(self):
+        return False
+
+    def get_id(self):
+        return self.id

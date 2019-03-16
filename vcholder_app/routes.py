@@ -1,14 +1,14 @@
 import os
 import io
-from vcholder_app import app
-from vcholder_app import db, qrcode
+from vcholder_app import app, db, qrcode, login_manager
 from flask import render_template, url_for, send_file
 from flask import jsonify, request, abort, Response, flash, redirect, send_from_directory
 from functools import wraps
-from vcholder_app.models import VCard
+from vcholder_app.models import VCard, User
 import base64
 from shortuuid import encode as suuid_encode
 from shortuuid import decode as suuid_decode
+import flask_login
 
 
 mimetypemap = {
@@ -101,22 +101,20 @@ def bool_request_arg(arg_name):
     return request.args.get(arg_name) in TRUE_MAP
 
 
-# def render_qrcode(items, uid):
-#     vcl = ['BEGIN:VCARD', 'VERSION:3.0']
-#     for vc_item in items:
-#         vcl.append('%s:%s' % (vc_item.vc_property, vc_item.vc_value))
-#     vcl.append('UID:%s' % uid)
-#     vcl.append('END:VCARD')
-#     return send_file(qrcode("\n".join(vcl), mode='raw'), mimetype='image/png')
+@app.route('/favicon.ico')
+def favicon():
+    abort(404)
 
 
+@app.route('/')
 @app.route('/index')
 def index():
-    uid = app.config['DEFAULT_UUID']
-    items = VCard.query.filter_by(uid=uid).all()
-    if not items:
-        abort(404)
-    return render_template('vcard.html', uid=uid, vcard_items=items)
+    return redirect(url_for('admin'))
+
+
+@app.route('/<string:uid>', methods=['GET'])
+def get_card_short(uid):
+    return get_card(suuid_decode(uid))
 
 
 @app.route('/api/v1.0/sync/<uuid(strict=False):uid>', methods=['PUT'])
@@ -127,17 +125,6 @@ def sync_vcard(uid):
     (u, i) = ldap_sync(str(uid), request.json)
     # print(request.json)
     return jsonify({str(uid): {'updated': u, 'new': i}})
-
-
-@app.route('/<string:uid>', methods=['GET'])
-def get_card_short(uid):
-    print(uid)
-    return get_card(suuid_decode(uid))
-
-
-@app.route('/favicon.ico')
-def favicon():
-    abort(404)
 
 
 @app.route('/api/v1.0/vcards/<uuid(strict=False):uid>', methods=['GET'])
@@ -197,16 +184,59 @@ def get_avatar(uid):
     abort(404)
 
 
-def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in [app.config['AVATAR_FILE_TYPE'], 'jpg']
+@app.route('/api/v1.0/avatars/uploads/<filename>', methods=['GET'])
+def uploaded_file(filename):
+    return send_from_directory(os.path.join(app.root_path, 'avatars'), filename)
 
 
-def secure_filename(filename):
-    return filename
+@app.route('/api/v1.0/qrcode/<uuid(strict=False):uid>', methods=['GET'])
+def get_qrcode(uid):
+    if not VCard.query.filter_by(uid=str(uid)).first():
+        abort(404)
+    return send_file(qrcode(url_for('get_card_short', uid=suuid_encode(uid), _external=True), mode='raw'),
+                     mimetype='image/png')
 
 
-@app.route('/api/v1.0/avatars/upload', methods=['GET', 'POST'])
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'GET':
+        return render_template('login.html')
+    user = User.query.filter_by(username=request.form['username'], password=request.form['password']).first()
+    if user:
+        flask_login.login_user(user)
+        return redirect(url_for('admin'))
+    # return 'Bad login'
+    return redirect(url_for('login'))
+
+
+@app.route('/logout')
+def logout():
+    flask_login.logout_user()
+    return 'Logged out'
+
+
+@login_manager.unauthorized_handler
+def unauthorized_handler():
+    return redirect(url_for('login'))
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.filter_by(id=user_id).first()
+
+
+@app.route('/admin', methods=['GET'])
+@flask_login.login_required
+def admin():
+    vcards = VCard.query.filter(VCard.vc_property.startswith('FN')).order_by(VCard.vc_value).all()
+    return render_template('contacts.html', vcards=vcards,
+                           show_avatars=bool_request_arg('avatars'), show_qrcodes=bool_request_arg('qrcodes'))
+    # print(flask_login.current_user.username, flask_login.current_user.api_key)
+    # return 'Logged in as: ' + str(flask_login.current_user.id)
+
+
+@app.route('/admin/upload', methods=['GET', 'POST'])
+@flask_login.login_required
 def get_avatar_upload():
     if request.method == 'POST':
         if 'file' not in request.files:
@@ -223,15 +253,10 @@ def get_avatar_upload():
     return render_template('upload.html')
 
 
-@app.route('/api/v1.0/avatars/uploads/<filename>')
-def uploaded_file(filename):
-    return send_from_directory(os.path.join(app.root_path, 'avatars'), filename)
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in [app.config['AVATAR_FILE_TYPE'], 'jpg']
 
 
-@app.route('/api/v1.0/qrcode/<uuid(strict=False):uid>', methods=['GET'])
-def get_qrcode(uid):
-    if not VCard.query.filter_by(uid=str(uid)).first():
-        abort(404)
-    return send_file(qrcode(url_for('get_card_short', uid=suuid_encode(uid), _external=True), mode='raw'),
-                     mimetype='image/png')
-
+def secure_filename(filename):
+    return filename
