@@ -260,3 +260,13 @@ def allowed_file(filename):
 
 def secure_filename(filename):
     return filename
+
+
+@app.route('/admin/user', methods=['GET', 'POST'])
+@flask_login.login_required
+def user():
+    if request.method == 'POST':
+        pass
+        # print(flask_login.current_user, request.form['password1'], request.form['password2'])
+    return render_template('user.html', user=flask_login.current_user)
+
