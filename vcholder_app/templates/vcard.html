@@ -1,24 +1,23 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>VCARD: {{ uid }}</title>
-</head>
-<body>
-<center>
-<br />
+{% extends "base.html" %}
+{% block title %}VCARD: {{ uid }}{% endblock %}
+{% block head %}
+    {{ super() }}
+    <style type="text/css">
+        .important { color: #336699; }
+    </style>
+{% endblock %}
+{% block header %}
+[<a href="{{ url_for('admin') }}">all vcards</a>]
+    {{ super() }}
+{% endblock %}
+{% block content %}
+<a href="{{ url_for('get_card', uid=uid) }}">
+    <img src="{{ url_for('get_avatar', uid=uid) }}"></a>
 <a href="{{ url_for('get_card', uid=uid) }}">
     <img src="{{ url_for('get_qrcode', uid=uid) }}"></a>
-<br />
-<br />
-    <br /><a href="{{ url_for('get_card', uid=uid) }}"><img src="{{ url_for('get_avatar', uid=uid) }}"></a><br />
-    <div align="left">
-    <ul>
-    {% for item in vcard_items %}
-        <li>{{ item.vc_value }}</li>
-    {% endfor %}
-    </ul>
-    </div>
-</center>
-</body>
-</html>
+<table>
+{% for item in vcard_items %}
+    <tr><td>{{ item.vc_value }}</td></tr>
+{% endfor %}
+</table>
+{% endblock %}

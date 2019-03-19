@@ -2,15 +2,20 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <link href="{{ url_for('static', filename='main.css')}}" rel="stylesheet">
+
     <title>Login</title>
 </head>
 <body>
-<center>
+<div id="container">
+
+    <div id="login">
                <form action='login' method='POST'>
-                <input type='text' name='username' id='username' placeholder='username'/>
+                Login: <input type='text' name='username' id='username' placeholder='username'/>
                 <input type='password' name='password' id='password' placeholder='password'/>
                 <input type='submit' name='submit'/>
                </form>
-</center>
+    </div>
+</div>
 </body>
 </html>

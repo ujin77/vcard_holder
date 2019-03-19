@@ -16,7 +16,7 @@ table {
   border-spacing: 0;
   border: 2px solid #336699;
 //  width: 400px;
-  margin: 50px auto;
+  margin: 20px auto;
   border-radius: 8px;
 //  border-radius: .25rem;
 }
@@ -54,7 +54,7 @@ tbody td {
 }
 
 td:last-child {
-  text-align: right;
+  text-align: left;
   padding-right: 10px;
 }
 
@@ -77,3 +77,55 @@ a:active {
 img{
   padding: 10px 10px 10px 10px;
 }
+
+div#header{
+  margin: auto;
+  width: 100%;
+  border: 1px solid gray;
+  padding: 8px;
+  text-align: center;
+  background-color: lightblue;
+}
+
+div#content{
+  margin: auto;
+  width: 100%;
+  padding: 8px;
+  text-align: center;
+}
+
+div#footer{
+  margin: auto;
+  width: 100%;
+  border: 1px solid gray;
+  padding: 8px;
+  text-align: center;
+  background-color: lightblue;
+}
+
+div#container{
+  text-align: center;
+      margin: 0;
+        padding: 0;
+
+}
+
+div#login{
+//  margin: 100px;
+//  width: 50%;
+  border: 1px solid gray;
+  padding: 10px;
+  text-align: center;
+  background-color: lightblue;
+
+  display: -moz-inline-stack;
+  display: inline-block;
+  zoom: 1;
+  *display: inline;
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  -ms-transform: translateY(-50%);
+  transform: translateY(-50%);
+}
+

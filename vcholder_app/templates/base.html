@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    {% block head %}
+    <link href="{{ url_for('static', filename='main.css')}}" rel="stylesheet">
+    <title>{% block title %}{% endblock %} - vcard server</title>
+    {% endblock %}
+</head>
+<body>
+    <div id="header">
+    {% block header %}
+    user: <a href="{{ url_for('user') }}">{{ user.username }}</a>
+    [<a href="{{ url_for('logout') }}">logout</a>]
+    {% endblock %}
+    </div>
+    <div id="content">{% block content %}{% endblock %}</div>
+    <div id="footer">
+        {% block footer %}
+        &copy; Copyright 2019 by <a href="https://am-bits.com/">AM-BITS LLC</a>.
+        {% endblock %}
+    </div>
+</body>
+</html>

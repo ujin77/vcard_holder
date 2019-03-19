@@ -1,18 +1,22 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>User</title>
-</head>
-<body>
+{% extends "base.html" %}
+{% block title %}User{% endblock %}
+{% block header %}
+[<a href="{{ url_for('admin') }}">all vcards</a>]
+    {{ super() }}
+{% endblock %}
+{% block content %}
 <table>
-    <tr><td>Username:</td><td>{{ user.username }} {{session['username']}}</td></tr>
-    <tr><td>API-KEY:</td><td>{{ user.api_key }}</td></tr>
-</table>
+    <tr><td>Username</td><td>{{ user.username }}</td></tr>
+    <tr><td>Api key</td><td>{{ user.api_key }}</td></tr>
+    <tr><td>Password</td><td>
        <form action="{{ url_for('user') }}" method='POST'>
-        <input type='password1' name='password1' id='password1' placeholder='password1'/>
-        <input type='password2' name='password2' id='password2' placeholder='password2'/>
+        <input type="hidden" name="id" id="id" value="{{ user.id }}"/>
+        <input type="password1" name="password1" id="password1" placeholder="new password"/>
+        <input type='password2' name='password2' id='password2' placeholder='new password'/>
         <input type='submit' name='submit'/>
        </form>
-</body>
-</html>
+    </td></tr>
+</table>
+{% endblock %}
+
+

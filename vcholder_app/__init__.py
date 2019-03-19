@@ -16,7 +16,6 @@ login_manager = LoginManager(app)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///vcholder.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.config['API_KEY'] = '1234567890'
 app.config['SECRET_KEY'] = uuid.uuid4().hex
 app.config['AVATAR_FILE_TYPE'] = 'jpeg'
 app.config['DEFAULT_UUID'] = '00000000-0000-0000-0000-000000000000'

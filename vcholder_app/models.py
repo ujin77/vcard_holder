@@ -50,3 +50,6 @@ class User(db.Model):
 
     def get_id(self):
         return self.id
+
+    def __repr__(self):
+        return '<User [%i]%s:%s>' % (self.id, self.username, self.api_key)

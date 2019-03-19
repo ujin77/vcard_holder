@@ -7,8 +7,8 @@ import json
 import requests
 import config
 
-# cfg = config.TestConfig
-cfg = config.ProductionConfig
+cfg = config.TestConfig
+# cfg = config.ProductionConfig
 
 API_KEY = cfg.API_KEY
 VCARD_SERVER = cfg.VCARD_SERVER
@@ -97,7 +97,7 @@ def request_delete(uid):
 
 def request_delete_all():
     resp = requests.delete(VCARDS_ALL_URL, headers=headers)
-    print(resp.status_code, resp.json())
+    print(resp.status_code, resp.text)
     # requests.raise_for_status()
 
 
