@@ -5,22 +5,12 @@ from flask import render_template, url_for, send_file
 from flask import jsonify, request, abort, Response, flash, redirect, send_from_directory
 from functools import wraps
 from vcholder_app.models import VCard, User
-import base64
 from shortuuid import encode as suuid_encode
 from shortuuid import decode as suuid_decode
 import flask_login
 
-
-mimetypemap = {
-    'gif': 'image/gif',
-    'ico': 'image/vnd.microsoft.icon',
-    'jpe': 'image/jpeg',
-    'jpeg': 'image/jpeg',
-    'jpg': 'image/jpeg',
-    'png': 'image/png',
-}
-
-TRUE_MAP = ['true', '1', 't', 'y', 'yes', 'Y', 'True', 'YES', 'show']
+from vcholder_app.utils import get_avatar_file_name, get_avatar_file_path, get_mime_type_avatar, get_image
+from vcholder_app.utils import bool_request_arg, allowed_file, secure_filename, update_user
 
 
 def require_appkey(view_function):
@@ -53,32 +43,6 @@ def ldap_sync(uid, data):
     return updated, inserted
 
 
-def get_image(uid, attr='PHOTO'):
-    file_name = '{}/avatars/{}.jpeg'.format(app.root_path, str(uid))
-    if os.path.isfile(file_name):
-        data = open(file_name, 'rb').read()
-        return "{};TYPE=JPEG;ENCODING=b:{}".format(attr, base64.b64encode(data).decode())
-    return None
-
-
-def get_avatar_file_name(uid):
-    return '.'.join([uid, app.config['AVATAR_FILE_TYPE']])
-
-
-def get_avatar_path(uid=None):
-    if not uid:
-        uid = app.config['DEFAULT_UUID']
-    return os.path.join(app.root_path, 'avatars', get_avatar_file_name(uid))
-
-
-def get_avatar_file_path(uid):
-    if os.path.isfile(get_avatar_path(uid)):
-        return get_avatar_path(uid)
-    if os.path.isfile(get_avatar_path()):
-        return get_avatar_path()
-    return None
-
-
 def render_vcf(items, uid):
     vcl = ['BEGIN:VCARD', 'VERSION:3.0']
     avatar = get_image(str(uid), 'PHOTO')
@@ -95,29 +59,6 @@ def render_vcf(items, uid):
     # headers = {'Content-Disposition': 'inline; filename="%s.vcf"' % str(uid)}
     # return Response("\n".join(vcl), mimetype="text/x-vcard", headers=headers)
     return Response("\n".join(vcl), content_type="text/x-vcard")
-
-
-def bool_request_arg(arg_name):
-    return request.args.get(arg_name) in TRUE_MAP
-
-
-def allowed_file(filename):
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in [app.config['AVATAR_FILE_TYPE'], 'jpg']
-
-
-def secure_filename(filename):
-    return filename
-
-
-def update_user(id, username, password1, password2):
-    obj_user = User.query.filter_by(id=id).first()
-    if not obj_user or not username or username == '' or not password1 or password1 == '' or password1 != password2:
-        return False
-    obj_user.username = username
-    obj_user.password = password1
-    db.session.commit()
-    return True
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -267,7 +208,7 @@ def get_avatar(uid):
     if file_name:
         with open(file_name, 'rb') as bites:
             return send_file(io.BytesIO(bites.read()), attachment_filename=get_avatar_file_name(str(uid)),
-                             mimetype=mimetypemap[app.config['AVATAR_FILE_TYPE']])
+                             mimetype=get_mime_type_avatar())
     abort(404)
 
 
