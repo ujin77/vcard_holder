@@ -7,15 +7,25 @@
     <title>Login</title>
 </head>
 <body>
-<div id="container">
-
+<div class="container">
     <div id="login">
-               <form action='login' method='POST'>
-                Login: <input type='text' name='username' id='username' placeholder='username'/>
-                <input type='password' name='password' id='password' placeholder='password'/>
-                <input type='submit' name='submit'/>
-               </form>
-    </div>
+    <form action='login' method='POST' class="login">
+    <fieldset class="form_input">
+        <legend>Login</legend>
+        <div class="item">
+            <label for="username">Username:</label>
+            <input type="text" name="username" id="username" class="username"  placeholder='username'/>
+        </div>
+        <div class="item">
+            <label for="password">Password:</label>
+            <input type="password" name="password" id="password" placeholder="password"/>
+        </div>
+    </fieldset>
+    <fieldset class="form_submit">
+        <input type="submit" name="submit"/>
+    </fieldset>
+</form>
+</div>
 </div>
 </body>
 </html>

@@ -5,18 +5,30 @@
     {{ super() }}
 {% endblock %}
 {% block content %}
-<table>
-    <tr><td>Username</td><td>{{ user.username }}</td></tr>
-    <tr><td>Api key</td><td>{{ user.api_key }}</td></tr>
-    <tr><td>Password</td><td>
-       <form action="{{ url_for('user') }}" method='POST'>
+<div class="container">
+<form action="{{ url_for('user') }}" method='POST' class="login">
+    <fieldset class="form_input">
+        <legend>Edit user</legend>
+        <div class="item">
+            <label for="username">Username:</label>
+            <input type="text" name="username" id="username" value="{{ user.username }}" readonly/>
+        </div>
+        <div class="item">
+            <label for="api_key">Api key:</label>
+            <input type="text" name="api_key" id="api_key" value="{{ user.api_key }}" readonly/>
+        </div>
+        <div class="item">
+            <label for="password1">Password:</label>
+            <input type="password" name="password1" id="password1" placeholder="new password"/>
+            <input type="password" name="password2" id="password2" placeholder="new password"/>
+        </div>
         <input type="hidden" name="id" id="id" value="{{ user.id }}"/>
-        <input type="password1" name="password1" id="password1" placeholder="new password"/>
-        <input type='password2' name='password2' id='password2' placeholder='new password'/>
-        <input type='submit' name='submit'/>
-       </form>
-    </td></tr>
-</table>
+    </fieldset>
+    <fieldset class="form_submit">
+        <input type="submit" name="submit"/>
+    </fieldset>
+</form>
+</div>
 {% endblock %}
 
 

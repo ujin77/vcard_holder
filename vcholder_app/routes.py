@@ -110,6 +110,16 @@ def secure_filename(filename):
     return filename
 
 
+def update_user(id, username, password1, password2):
+    obj_user = User.query.filter_by(id=id).first()
+    if not obj_user or not username or username == '' or not password1 or password1 == '' or password1 != password2:
+        return False
+    obj_user.username = username
+    obj_user.password = password1
+    db.session.commit()
+    return True
+
+
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'GET':
@@ -149,8 +159,7 @@ def admin():
 @flask_login.login_required
 def user():
     if request.method == 'POST':
-        pass
-        # print(flask_login.current_user, request.form['password1'], request.form['password2'])
+        update_user(request.form['id'], request.form['username'], request.form['password1'], request.form['password2'])
     return render_template('user.html', user=flask_login.current_user)
 
 

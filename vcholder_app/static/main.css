@@ -84,13 +84,13 @@ div#header{
   border: 1px solid gray;
   padding: 8px;
   text-align: center;
-  background-color: lightblue;
+  background-color: #D3DCE3;
 }
 
 div#content{
-  margin: auto;
-  width: 100%;
-  padding: 8px;
+//  margin: auto;
+//  width: 100%;
+//  padding: 8px;
   text-align: center;
 }
 
@@ -100,24 +100,22 @@ div#footer{
   border: 1px solid gray;
   padding: 8px;
   text-align: center;
-  background-color: lightblue;
+  background-color: #D3DCE3;
 }
 
 div#container{
-  text-align: center;
-      margin: 0;
-        padding: 0;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+}
 
+div.container {
+    text-align: left;
+    width: 30em;
+    margin: 0 auto;
 }
 
 div#login{
-//  margin: 100px;
-//  width: 50%;
-  border: 1px solid gray;
-  padding: 10px;
-  text-align: center;
-  background-color: lightblue;
-
   display: -moz-inline-stack;
   display: inline-block;
   zoom: 1;
@@ -129,3 +127,90 @@ div#login{
   transform: translateY(-50%);
 }
 
+fieldset {
+    display: block;
+    margin-inline-start: 2px;
+    margin-inline-end: 2px;
+    padding-block-start: 0.35em;
+    padding-inline-start: 0.75em;
+    padding-inline-end: 0.75em;
+    padding-block-end: 0.625em;
+    min-inline-size: min-content;
+}
+
+fieldset.form_input {
+    margin-top: 1em;
+    -webkit-border-radius: 4px 4px 0 0;
+    border: #aaa solid 1px;
+    padding: 10px;
+    background: #eee;
+    box-shadow: 1px 1px 2px #fff inset;
+}
+
+fieldset.form_submit {
+
+    margin-font-weight: normal;
+    color: #000;
+    background: #D3DCE3;
+    border: #aaa solid 1px;
+
+    top: 0;
+    margin-bottom: .5em;
+    border-top: 0;
+    text-align: right;
+    float: none;
+    clear: both;
+    border-radius: 0 0 4px 5px;
+}
+
+fieldset legend {
+    font-weight: bold;
+    color: #444;
+    padding: 5px 10px;
+    border: 1px solid #aaa;
+    background-color: #fff;
+    box-shadow: 3px 3px 15px #bbb;
+    max-width: 100%;
+}
+
+form {
+    padding: 0;
+    margin: 0;
+}
+
+legend {
+    display: block;
+    padding-inline-start: 2px;
+    padding-inline-end: 2px;
+}
+
+form.login label {
+    float: left;
+    width: 8em;
+    font-weight: bolder;
+}
+
+form.login input[type=text], form.login select {
+    box-sizing: border-box;
+    width: 20em;
+}
+
+form.login input[type=password] {
+    box-sizing: border-box;
+    width: 10em;
+}
+
+form.login input[type=text].username {
+    box-sizing: border-box;
+    width: 10em;
+}
+
+
+form.login input[type="button"], form.login input[type="submit"], form.login input[type="reset"] {
+    margin: 0px 10px;
+    border: 1px solid #aaa;
+    padding: 3px 7px;
+    color: #111;
+    border-radius: 12px;
+    -webkit-border-radius: 12px;
+}
