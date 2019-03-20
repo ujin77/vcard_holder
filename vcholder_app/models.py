@@ -1,8 +1,9 @@
-from vcholder_app import db
+from vcholder_app import db, app
 import uuid
 
 
 def on_init_db():
+    app.logger.debug("on_init_db")
     db.create_all()
     # db.session.delete(User.query.first())
     # db.session.commit()

@@ -1,7 +1,7 @@
 import os
 import base64
-from vcholder_app import app, db, qrcode, login_manager
-from vcholder_app.models import VCard, User
+from vcholder_app import app, db, qr, lm
+from vcholder_app.models import User, VCard
 from flask import request
 
 

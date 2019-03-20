@@ -1,10 +1,13 @@
+import os
+import uuid
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_uuid import FlaskUUID
 from flask_qrcode import QRcode
 from flask_login import LoginManager
-import uuid
-import os
+from logging.handlers import RotatingFileHandler
+from logging import Formatter
+import logging
 
 VCARD_SERVER_CONFIG = '%s.cfg' % __name__
 
@@ -15,14 +18,31 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SECRET_KEY'] = uuid.uuid4().hex
 app.config['AVATAR_FILE_TYPE'] = 'jpeg'
 app.config['DEFAULT_UUID'] = '00000000-0000-0000-0000-000000000000'
+app.config['LOGFILE'] = None
 app.config.from_pyfile(os.getenv('VCARD_SERVER_CONFIG', VCARD_SERVER_CONFIG), True)
 
 FlaskUUID(app)
-qrcode = QRcode(app)
-login_manager = LoginManager(app)
+qr = QRcode(app)
+lm = LoginManager(app)
 db = SQLAlchemy(app)
+
+if app.config['LOGFILE']:
+    handler = RotatingFileHandler(app.config['LOGFILE'], maxBytes=1000000, backupCount=3)
+    handler.setLevel(logging.WARNING)
+    if app.config['DEBUG']:
+        handler.setLevel(logging.DEBUG)
+    # handler.setFormatter(Formatter('%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'))
+    handler.setFormatter(Formatter('%(asctime)s %(levelname)s: %(message)s'))
+    app.logger.addHandler(handler)
+
+if app.config['DEBUG']:
+    for c in app.config:
+        app.logger.debug("%s: %s" % (c, app.config[c]))
 
 import vcholder_app.routes
 import vcholder_app.models
 
 vcholder_app.models.on_init_db()
+
+
+

@@ -1,6 +1,6 @@
 import os
 import io
-from vcholder_app import app, db, qrcode, login_manager
+from vcholder_app import app, db, qr, lm
 from flask import render_template, url_for, send_file
 from flask import jsonify, request, abort, Response, flash, redirect, send_from_directory
 from functools import wraps
@@ -78,12 +78,12 @@ def logout():
     return redirect(url_for('login'))
 
 
-@login_manager.unauthorized_handler
+@lm.unauthorized_handler
 def unauthorized_handler():
     return redirect(url_for('login'))
 
 
-@login_manager.user_loader
+@lm.user_loader
 def load_user(user_id):
     return User.query.filter_by(id=user_id).first()
 
@@ -221,5 +221,5 @@ def uploaded_file(filename):
 def get_qrcode(uid):
     if not VCard.query.filter_by(uid=str(uid)).first():
         abort(404)
-    return send_file(qrcode(url_for('get_card_short', uid=suuid_encode(uid), _external=True), mode='raw'),
+    return send_file(qr(url_for('get_card_short', uid=suuid_encode(uid), _external=True), mode='raw'),
                      mimetype='image/png')
