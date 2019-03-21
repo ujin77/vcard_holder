@@ -11,7 +11,7 @@ import flask_login
 import traceback
 
 from vcholder_app.utils import get_avatar_file_name, get_avatar_file_path, get_mime_type_avatar, get_image
-from vcholder_app.utils import bool_request_arg, allowed_file, secure_filename, update_user
+from vcholder_app.utils import bool_request_arg, allowed_file, secure_filename, update_user, get_headers_str
 
 
 def require_appkey(view_function):
@@ -227,18 +227,10 @@ def get_qrcode(uid):
                      mimetype='image/png')
 
 
-# @app.before_request
-# def log_request_info():
-#     # app.logger.debug('Headers: %s', request.headers)
-#     # app.logger.debug('Body: %s', request.get_data())
-#     app.logger.info('%s %s %s %s', request.remote_addr, request.method, request.scheme, request.full_path)
-#     app.logger.debug('Headers: %s', request.headers)
-
-
 @app.after_request
 def after_request(response):
-    app.logger.debug('\n[Request]:\n%s\n[Response]:\n%s', str(request.headers).rstrip('\n\r'), str(response.headers).rstrip('\n\r'))
-    app.logger.info('%s %s %s %s %s', request.remote_addr, request.method, request.scheme, request.full_path,
+    app.logger.debug('\n[Request]:\n%s\n[Response]:\n%s', get_headers_str(request), get_headers_str(response))
+    app.logger.info('%s %s %s %s %s', request.remote_addr, request.scheme.upper(), request.method, request.full_path,
                     response.status)
     return response
 
@@ -247,3 +239,4 @@ def after_request(response):
 # def exceptions(e):
 #     app.logger.error('%s %s %s %s: %s', request.remote_addr, request.method, request.scheme, request.full_path, e)
 #     return e
+

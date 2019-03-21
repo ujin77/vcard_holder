@@ -68,3 +68,7 @@ def update_user(user_id, username, password1, password2):
     obj_user.password = password1
     db.session.commit()
     return True
+
+
+def get_headers_str(r):
+    return str(r.headers).rstrip('\n\r')
