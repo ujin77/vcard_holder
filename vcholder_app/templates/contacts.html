@@ -6,6 +6,11 @@
         .important { color: #336699; }
     </style>
 {% endblock %}
+{% block header %}
+[<a href="{{ url_for('admin', avatars=0 if show_avatars else 1) }}">{{ 'hide' if show_avatars else 'show' }} avatars</a>]
+[<a href="{{ url_for('admin', qrcodes=0 if show_qrcodes else 1) }}">{{ 'hide' if show_qrcodes else 'show' }} qrcodes</a>]
+    {{ super() }}
+{% endblock %}
 {% block content %}
     <table>
         {% for item in vcards %}

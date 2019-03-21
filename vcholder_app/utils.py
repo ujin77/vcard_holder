@@ -1,8 +1,17 @@
+# -*- coding: utf-8 -*-
+"""
+    vcard_server.utils
+    -----------------
+    General utilities.
+"""
+
+
 import os
 import base64
 from vcholder_app import app, db, qr, lm
 from vcholder_app.models import User, VCard
-from flask import request
+from flask import request, session, abort, flash
+from functools import wraps
 
 
 mimetypemap = {
@@ -48,6 +57,10 @@ def get_image(uid, attr='PHOTO'):
 
 
 def bool_request_arg(arg_name):
+    if request.args.get(arg_name):
+        session[arg_name] = request.args.get(arg_name)
+    elif arg_name in session:
+        return session[arg_name] in TRUE_MAP
     return request.args.get(arg_name) in TRUE_MAP
 
 
@@ -63,6 +76,7 @@ def secure_filename(filename):
 def update_user(user_id, username, password1, password2):
     obj_user = User.query.filter_by(id=user_id).first()
     if not obj_user or not username or username == '' or not password1 or password1 == '' or password1 != password2:
+        flash('Update user error')
         return False
     obj_user.username = username
     obj_user.password = password1
@@ -72,3 +86,15 @@ def update_user(user_id, username, password1, password2):
 
 def get_headers_str(r):
     return str(r.headers).rstrip('\n\r')
+
+
+def require_appkey(view_function):
+    @wraps(view_function)
+    def decorated_function(*args, **kwargs):
+        if request.headers.get('x-api-key') and User.query.filter_by(api_key=request.headers.get('x-api-key')).first():
+            return view_function(*args, **kwargs)
+        elif request.args.get('api-key') and User.query.filter_by(api_key=request.headers.get('x-api-key')).first():
+            return view_function(*args, **kwargs)
+        else:
+            abort(401)
+    return decorated_function

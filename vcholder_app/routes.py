@@ -1,29 +1,23 @@
+# -*- coding: utf-8 -*-
+"""
+    vcard_server.routes
+    -----------------
+    Routes.
+"""
+
 import os
 import io
 from vcholder_app import app, db, qr, lm
 from flask import render_template, url_for, send_file
 from flask import jsonify, request, abort, Response, flash, redirect, send_from_directory
-from functools import wraps
 from vcholder_app.models import VCard, User
 from shortuuid import encode as suuid_encode
 from shortuuid import decode as suuid_decode
 import flask_login
-import traceback
 
 from vcholder_app.utils import get_avatar_file_name, get_avatar_file_path, get_mime_type_avatar, get_image
 from vcholder_app.utils import bool_request_arg, allowed_file, secure_filename, update_user, get_headers_str
-
-
-def require_appkey(view_function):
-    @wraps(view_function)
-    def decorated_function(*args, **kwargs):
-        if request.headers.get('x-api-key') and User.query.filter_by(api_key=request.headers.get('x-api-key')).first():
-            return view_function(*args, **kwargs)
-        elif request.args.get('api-key') and User.query.filter_by(api_key=request.headers.get('x-api-key')).first():
-            return view_function(*args, **kwargs)
-        else:
-            abort(401)
-    return decorated_function
+from vcholder_app.utils import require_appkey
 
 
 def ldap_sync(uid, data):

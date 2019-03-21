@@ -14,6 +14,15 @@
     [<a href="{{ url_for('logout') }}">logout</a>]
     {% endblock %}
     </div>
+    {% with messages = get_flashed_messages() %}
+      {% if messages %}
+        <div class=flashes>
+        {% for message in messages %}
+          [{{ message }}]
+        {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
     <div id="content">{% block content %}{% endblock %}</div>
     <!--
     <div id="footer">
