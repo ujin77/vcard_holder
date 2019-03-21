@@ -29,11 +29,11 @@ lm = LoginManager(app)
 db = SQLAlchemy(app)
 
 handler = RotatingFileHandler(app.config['LOGFILE'], maxBytes=1000000, backupCount=3)
-# handler.setLevel(logging.WARNING)
 handler.setFormatter(Formatter('%(asctime)s %(levelname)s: %(message)s'))
 if app.config['DEBUG']:
-    # handler.setLevel(logging.DEBUG)
     handler.setFormatter(Formatter('%(asctime)s %(levelname)s [%(module)s.%(funcName)s]: %(message)s'))
+elif 'LOGLEVEL' in app.config:
+    app.logger.setLevel(logging.getLevelName(app.config['LOGLEVEL']))
 app.logger.addHandler(handler)
 
 if app.config['DEBUG'] and app.config['DEBUG_CONFIG'] == 'TRUE':
@@ -44,6 +44,5 @@ import vcholder_app.routes
 import vcholder_app.models
 
 vcholder_app.models.on_init_db()
-
 
 

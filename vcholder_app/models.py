@@ -3,7 +3,7 @@ import uuid
 
 
 def on_init_db():
-    app.logger.debug("on_init_db")
+    app.logger.info("init database")
     db.create_all()
     # db.session.delete(User.query.first())
     # db.session.commit()
