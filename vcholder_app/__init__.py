@@ -19,6 +19,8 @@ app.config['SECRET_KEY'] = uuid.uuid4().hex
 app.config['AVATAR_FILE_TYPE'] = 'jpeg'
 app.config['DEFAULT_UUID'] = '00000000-0000-0000-0000-000000000000'
 app.config['LOGFILE'] = '%s.log' % __name__
+app.config['DEBUG_CONFIG'] = "FALSE"
+
 app.config.from_pyfile(os.getenv('VCARD_SERVER_CONFIG', VCARD_SERVER_CONFIG), True)
 
 FlaskUUID(app)
@@ -34,7 +36,7 @@ if app.config['DEBUG']:
     handler.setFormatter(Formatter('%(asctime)s %(levelname)s [%(module)s.%(funcName)s]: %(message)s'))
 app.logger.addHandler(handler)
 
-if app.config['DEBUG']:
+if app.config['DEBUG'] and app.config['DEBUG_CONFIG'] == 'TRUE':
     for c in app.config:
         app.logger.debug("%s: %s" % (c, app.config[c]))
 
