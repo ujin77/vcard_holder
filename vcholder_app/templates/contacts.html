@@ -7,17 +7,29 @@
     </style>
 {% endblock %}
 {% block header %}
-[<a href="{{ url_for('admin', avatars=0 if show_avatars else 1) }}">{{ 'hide' if show_avatars else 'show' }} avatars</a>]
-[<a href="{{ url_for('admin', qrcodes=0 if show_qrcodes else 1) }}">{{ 'hide' if show_qrcodes else 'show' }} qrcodes</a>]
-    {{ super() }}
+<a href="{{ url_for('admin', avatars=0 if show_avatars else 1) }}">{{ 'hide' if show_avatars else '' }} avatars</a>
+<a href="{{ url_for('admin', qrcodes=0 if show_qrcodes else 1) }}">{{ 'hide' if show_qrcodes else '' }} qrcodes</a>
+{{ super() }}
 {% endblock %}
 {% block content %}
     <table>
+             <thead>
+        <tr>
+          <th>Name</th>
+        {% if show_avatars %}
+          <th>Avatar</th>
+        {% endif %}
+        {% if show_qrcodes %}
+          <th>QR code</th>
+        {% endif %}
+        </tr>
+      </thead>
+
         {% for item in vcards %}
     <tr>
         <td><a href="{{ url_for('edit_card', uid=item.uid) }}">{{ item.vc_value }}</a></td>
         {% if show_avatars %}
-        <td><a href="{{ url_for('get_card_short', uid=item.uid, html='1') }}">
+        <td><a href="{{ url_for('upload_avatar', uid=item.uid) }}">
             <img src="{{ url_for('get_avatar', uid=item.uid) }}"></a></td>
         {% endif %}
         {% if show_qrcodes %}

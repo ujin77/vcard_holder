@@ -1,14 +1,28 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Upload new Avatar</title>
-</head>
-<body>
-    <h1>Upload new Avatar</h1>
-    <form method=post enctype=multipart/form-data>
-      <input type=file name=file>
-      <input type=submit value=Upload>
-    </form>
-</body>
-</html>
+{% extends "base.html" %}
+{% block title %}Upload new Avatar for {{ uid }}{% endblock %}
+{% block header %}
+<a href="{{ url_for('admin') }}">all vcards</a>
+{{ super() }}
+{% endblock %}
+{% block content %}
+<div class="container">
+<form method=post enctype=multipart/form-data class="login">
+    <fieldset class="form_input">
+        <legend>Upload new Avatar</legend>
+        <div class="item">
+            <img src="{{ url_for('get_avatar', uid=uid) }}"></a>
+        </div>
+        <div class="item">
+            <label for="file">jpeg</label>
+            <input id="file" type="file" name="file">
+        </div>
+    </fieldset>
+    <fieldset class="form_submit">
+        <input type="hidden" name="uid" id="uid" value="{{ uid }}"/>
+        <input type="submit" name="submit" value="Upload"/>
+    </fieldset>
+</form>
+{% endblock %}
+
+
+

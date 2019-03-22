@@ -10,34 +10,35 @@ body {
 }
 
 table {
-  text-align: left;
-  line-height: 30px;
-  border-collapse: separate;
-  border-spacing: 0;
-  border: 2px solid #336699;
-//  width: 400px;
-  margin: 20px auto;
-  border-radius: 8px;
-//  border-radius: .25rem;
+    text-align: left;
+    line-height: 30px;
+    border-collapse: separate;
+    border-spacing: 0;
+    border: 1px solid #aaa;
+    border-radius: 4px;
+    -webkit-border-radius: 4px;
+    margin: 20px auto;
+}
+
+th, td {
+  padding: 0 10px 0 10px;
 }
 
 thead tr:first-child {
-  background: #336699;
-  color: #fff;
+  background: #D3DCE3;
+  color: #353839;
   border: none;
 }
 
-th:first-child,
-td:first-child {
-  padding: 0 15px 0 20px;
-}
-
+/*
 th {
   font-weight: 500;
 }
+*/
 
 thead tr:last-child th {
-  border-bottom: 3px solid #ddd;
+  border-bottom: 1px solid #aaa;
+  text-align: center;
 }
 
 tbody tr:hover {
@@ -54,8 +55,11 @@ tbody td {
 }
 
 td:last-child {
-  text-align: left;
-  padding-right: 10px;
+  text-align: right;
+}
+
+tfoot{
+  background: #EEEEEE;
 }
 
 a:link {
@@ -78,53 +82,46 @@ img{
   padding: 10px 10px 10px 10px;
 }
 
-div#header{
+div.header{
   margin: auto;
   width: 100%;
-  border: 1px solid gray;
-  padding: 8px;
+  border: 1px solid #aaa;
+  padding: 5px;
   text-align: center;
   background-color: #D3DCE3;
 }
 
-div#content{
-//  margin: auto;
-//  width: 100%;
-//  padding: 8px;
+div.content{
   text-align: center;
 }
 
-div#footer{
-  margin: auto;
-  width: 100%;
-  border: 1px solid gray;
-  padding: 8px;
-  text-align: center;
-  background-color: #D3DCE3;
-}
-
-div#container{
+div.flash_message,
+div.flash_error,
+div.flash_ok{
+    background: #D3DCE3;
+    border: #aaa solid 1px;
+    margin: 10px;
+    padding: 5px;
     text-align: center;
-    margin: 0;
-    padding: 0;
+    float: none;
+    clear: both;
+    border-radius: 5px;
+}
+
+div.flash_error{
+    background: #e3d3d3;
+    color: red;
+}
+
+div.flash_ok{
+    background: #d3e3d3;
+    color: green;
 }
 
 div.container {
     text-align: left;
-    width: 30em;
+    width: 25em;
     margin: 0 auto;
-}
-
-div#login{
-  display: -moz-inline-stack;
-  display: inline-block;
-  zoom: 1;
-  *display: inline;
-  margin: 0;
-  position: absolute;
-  top: 50%;
-  -ms-transform: translateY(-50%);
-  transform: translateY(-50%);
 }
 
 fieldset {
@@ -134,7 +131,7 @@ fieldset {
     padding-block-start: 0.35em;
     padding-inline-start: 0.75em;
     padding-inline-end: 0.75em;
-    padding-block-end: 0.625em;
+    padding-block-end: 0.45em;
     min-inline-size: min-content;
 }
 
@@ -148,9 +145,7 @@ fieldset.form_input {
 }
 
 fieldset.form_submit {
-
     margin-font-weight: normal;
-    color: #000;
     background: #D3DCE3;
     border: #aaa solid 1px;
 
@@ -160,12 +155,12 @@ fieldset.form_submit {
     text-align: right;
     float: none;
     clear: both;
-    border-radius: 0 0 4px 5px;
+    border-radius: 0 0 4px 4px;
 }
 
 fieldset legend {
     font-weight: bold;
-    color: #444;
+    color: #727a80;
     padding: 5px 10px;
     border: 1px solid #aaa;
     background-color: #fff;
@@ -186,18 +181,21 @@ legend {
 
 form.login label {
     float: left;
-    width: 8em;
-    font-weight: bolder;
+    width: 7em;
+//    font-weight: bolder;
 }
 
-form.login input[type=text], form.login select {
+form.login input[type=text],
+form.login select {
     box-sizing: border-box;
     width: 20em;
+    font-size: 0.8em;
 }
 
 form.login input[type=password] {
     box-sizing: border-box;
     width: 10em;
+    font-size: 0.8em;
 }
 
 form.login input[type=text].username {
@@ -205,12 +203,27 @@ form.login input[type=text].username {
     width: 10em;
 }
 
-
-form.login input[type="button"], form.login input[type="submit"], form.login input[type="reset"] {
+form.login input[type="button"],
+form.login input[type="submit"],
+form.login input[type="reset"] {
     margin: 0px 10px;
     border: 1px solid #aaa;
     padding: 3px 7px;
     color: #111;
     border-radius: 12px;
     -webkit-border-radius: 12px;
+font-size: 1em;
+}
+
+
+div#login{
+  display: -moz-inline-stack;
+  display: inline-block;
+  zoom: 1;
+  *display: inline;
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  -ms-transform: translateY(-50%);
+  transform: translateY(-50%);
 }

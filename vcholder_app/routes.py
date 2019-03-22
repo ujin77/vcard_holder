@@ -17,7 +17,7 @@ import flask_login
 
 from vcholder_app.utils import get_avatar_file_name, get_avatar_file_path, get_mime_type_avatar, get_image
 from vcholder_app.utils import bool_request_arg, allowed_file, secure_filename, update_user, get_headers_str
-from vcholder_app.utils import require_appkey
+from vcholder_app.utils import require_appkey, save_avatar
 
 
 def ldap_sync(uid, data):
@@ -109,27 +109,34 @@ def edit_card(uid):
     return render_template('vcard.html', uid=str(uid), vcard_items=vcard_items, user=flask_login.current_user)
 
 
-@app.route('/admin/upload', methods=['GET', 'POST'])
+@app.route('/admin/upload/<uuid(strict=False):uid>', methods=['GET', 'POST'])
 @flask_login.login_required
-def get_avatar_upload():
+def upload_avatar(uid):
     if request.method == 'POST':
         if 'file' not in request.files:
-            flash('No file part')
+            flash('No file', 'error')
             return redirect(request.url)
-        file = request.files['file']
-        if file.filename == '':
-            flash('No selected file')
+        request_file = request.files['file']
+        if request_file.filename == '':
+            flash('No selected file', 'error')
             return redirect(request.url)
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            file.save(os.path.join(app.root_path, 'avatars', filename))
-            return redirect(url_for('uploaded_file', filename=filename))
-    return render_template('upload.html')
+        if request_file and allowed_file(request_file.filename):
+            if save_avatar(str(uid), request_file):
+                flash('%s uploaded' % request_file.filename, 'ok')
+            else:
+                flash('Error in file', 'error')
+            # file.save(os.path.join(app.root_path, 'avatars', filename))
+            return redirect(request.url)
+        else:
+            flash('File type error', 'error')
+            return redirect(request.url)
+    return render_template('upload.html', user=flask_login.current_user, uid=str(uid), no_cache=True)
 
 
 @app.route('/favicon.ico')
 def favicon():
-    abort(404)
+    return send_from_directory(os.path.join(app.root_path, 'static'),
+                               'vcard1.png', mimetype='image/png')
 
 
 @app.route('/')

@@ -8,10 +8,12 @@
 
 import os
 import base64
+import io
 from vcholder_app import app, db, qr, lm
 from vcholder_app.models import User, VCard
 from flask import request, session, abort, flash
 from functools import wraps
+from PIL import Image
 
 
 mimetypemap = {
@@ -56,6 +58,13 @@ def get_image(uid, attr='PHOTO'):
     return None
 
 
+def save_avatar(uid, request_file):
+    # file.save(os.path.join(app.root_path, 'avatars', filename))
+    img = Image.open(request_file)
+    img.convert('RGB').save(get_avatar_path(uid), "JPEG")
+    return True
+
+
 def bool_request_arg(arg_name):
     if request.args.get(arg_name):
         session[arg_name] = request.args.get(arg_name)
@@ -64,9 +73,15 @@ def bool_request_arg(arg_name):
     return request.args.get(arg_name) in TRUE_MAP
 
 
+def get_file_extension(filename):
+    return filename.rsplit('.', 1)[1].lower()
+
+
 def allowed_file(filename):
+    # return '.' in filename and \
+    #        filename.rsplit('.', 1)[1].lower() in [app.config['AVATAR_FILE_TYPE'], 'jpg']
     return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in [app.config['AVATAR_FILE_TYPE'], 'jpg']
+           filename.rsplit('.', 1)[1].lower() in mimetypemap
 
 
 def secure_filename(filename):
@@ -76,7 +91,7 @@ def secure_filename(filename):
 def update_user(user_id, username, password1, password2):
     obj_user = User.query.filter_by(id=user_id).first()
     if not obj_user or not username or username == '' or not password1 or password1 == '' or password1 != password2:
-        flash('Update user error')
+        flash(u'Update user error', category='error')
         return False
     obj_user.username = username
     obj_user.password = password1
