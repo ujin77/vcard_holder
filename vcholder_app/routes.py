@@ -9,51 +9,16 @@ import os
 import io
 from vcholder_app import app, db, qr, lm
 from flask import render_template, url_for, send_file
-from flask import jsonify, request, abort, Response, flash, redirect, send_from_directory
+from flask import jsonify, request, abort, flash, redirect, send_from_directory
 from vcholder_app.models import VCard, User
 from shortuuid import encode as suuid_encode
 from shortuuid import decode as suuid_decode
+from PIL import Image
 import flask_login
 
 from vcholder_app.utils import get_avatar_file_name, get_avatar_file_path, get_mime_type_avatar, get_image
 from vcholder_app.utils import bool_request_arg, allowed_file, secure_filename, update_user, get_headers_str
-from vcholder_app.utils import require_appkey, save_avatar
-
-
-def ldap_sync(uid, data):
-    updated = 0
-    inserted = 0
-    for vc_property in data:
-        vcard = VCard.query.filter_by(uid=uid, vc_property=vc_property).first()
-        if vcard:
-            if vcard.vc_value != data[vc_property]:
-                # print('Update: [%s] [%s]' % (vcard.vc_value, data[vc_property]))
-                vcard.vc_value = data[vc_property]
-                updated += 1
-        else:
-            db.session.add(VCard(uid, vc_property, data[vc_property]))
-            inserted += 1
-            # print('Insert')
-    db.session.commit()
-    return updated, inserted
-
-
-def render_vcf(items, uid):
-    vcl = ['BEGIN:VCARD', 'VERSION:3.0']
-    avatar = get_image(str(uid), 'PHOTO')
-    if not avatar:
-        avatar = get_image(app.config['DEFAULT_UUID'], 'PHOTO')
-    for vc_item in items:
-        vcl.append('%s:%s' % (vc_item.vc_property, vc_item.vc_value))
-        # if vc_item.vc_property[:2] == 'FN':
-        #     print(vc_item.vc_value)
-    if avatar:
-        vcl.append(avatar)
-    vcl.append('UID:%s' % uid)
-    vcl.append('END:VCARD')
-    # headers = {'Content-Disposition': 'inline; filename="%s.vcf"' % str(uid)}
-    # return Response("\n".join(vcl), mimetype="text/x-vcard", headers=headers)
-    return Response("\n".join(vcl), content_type="text/x-vcard")
+from vcholder_app.utils import require_appkey, save_avatar, ldap_sync, render_vcf, get_avatar_path
 
 
 @app.route('/login', methods=['GET', 'POST'])
@@ -121,11 +86,13 @@ def upload_avatar(uid):
             flash('No selected file', 'error')
             return redirect(request.url)
         if request_file and allowed_file(request_file.filename):
-            if save_avatar(str(uid), request_file):
-                flash('%s uploaded' % request_file.filename, 'ok')
+            img = Image.open(request_file)
+            if img.width >= app.config['AVATAR_SIZE'] or img.height >= app.config['AVATAR_SIZE']:
+                img.resize((app.config['AVATAR_SIZE'], app.config['AVATAR_SIZE'])).convert('RGB').save(
+                    get_avatar_path(str(uid)), "JPEG")
             else:
-                flash('Error in file', 'error')
-            # file.save(os.path.join(app.root_path, 'avatars', filename))
+                img.convert('RGB').save(get_avatar_path(str(uid)), app.config['AVATAR_FILE_TYPE'].upper())
+            flash('%s uploaded' % request_file.filename, 'ok')
             return redirect(request.url)
         else:
             flash('File type error', 'error')
@@ -195,23 +162,13 @@ def delete_all():
     return jsonify({'all': 'DELETED'})
 
 
-# @app.route('/api/v1.0/contacts', methods=['GET'])
-# @require_appkey
-# def get_contacts():
-#     vcards = VCard.query.filter(VCard.vc_property.startswith('FN')).order_by(VCard.vc_value).all()
-#     if not vcards:
-#         abort(404)
-#     return render_template('contacts.html', vcards=vcards, show_images=True,
-#                            show_avatars=bool_request_arg('avatars'), show_qrcodes=bool_request_arg('qrcodes'))
-
-
 @app.route('/api/v1.0/avatars/<uuid(strict=False):uid>', methods=['GET'])
 def get_avatar(uid):
     file_name = get_avatar_file_path(str(uid))
     if file_name:
         with open(file_name, 'rb') as bites:
             return send_file(io.BytesIO(bites.read()), attachment_filename=get_avatar_file_name(str(uid)),
-                             mimetype=get_mime_type_avatar())
+                             mimetype=get_mime_type_avatar(), cache_timeout=1)
     abort(404)
 
 

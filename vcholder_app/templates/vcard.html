@@ -11,7 +11,7 @@
     {{ super() }}
 {% endblock %}
 {% block content %}
-<a href="{{ url_for('get_card', uid=uid) }}">
+<a href="{{ url_for('upload_avatar', uid=uid) }}">
     <img src="{{ url_for('get_avatar', uid=uid) }}"></a>
 <a href="{{ url_for('get_card', uid=uid) }}">
     <img src="{{ url_for('get_qrcode', uid=uid) }}"></a>

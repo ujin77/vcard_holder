@@ -6,3 +6,4 @@ requests==2.21.0
 Flask-QRcode==2.0.2
 shortuuid==0.5.0
 Flask-Login==0.4.1
+Pillow==5.4.1

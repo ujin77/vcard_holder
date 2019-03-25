@@ -8,10 +8,10 @@
 
 import os
 import base64
-import io
+# import io
 from vcholder_app import app, db, qr, lm
 from vcholder_app.models import User, VCard
-from flask import request, session, abort, flash
+from flask import request, session, abort, flash, Response
 from functools import wraps
 from PIL import Image
 
@@ -61,6 +61,7 @@ def get_image(uid, attr='PHOTO'):
 def save_avatar(uid, request_file):
     # file.save(os.path.join(app.root_path, 'avatars', filename))
     img = Image.open(request_file)
+    print(img.filename)
     img.convert('RGB').save(get_avatar_path(uid), "JPEG")
     return True
 
@@ -78,10 +79,11 @@ def get_file_extension(filename):
 
 
 def allowed_file(filename):
+    return get_file_extension(filename) in mimetypemap
     # return '.' in filename and \
     #        filename.rsplit('.', 1)[1].lower() in [app.config['AVATAR_FILE_TYPE'], 'jpg']
-    return '.' in filename and \
-           filename.rsplit('.', 1)[1].lower() in mimetypemap
+    # return '.' in filename and \
+    #        filename.rsplit('.', 1)[1].lower() in mimetypemap
 
 
 def secure_filename(filename):
@@ -113,3 +115,40 @@ def require_appkey(view_function):
         else:
             abort(401)
     return decorated_function
+
+
+def ldap_sync(uid, data):
+    updated = 0
+    inserted = 0
+    for vc_property in data:
+        vcard = VCard.query.filter_by(uid=uid, vc_property=vc_property).first()
+        if vcard:
+            if vcard.vc_value != data[vc_property]:
+                # print('Update: [%s] [%s]' % (vcard.vc_value, data[vc_property]))
+                vcard.vc_value = data[vc_property]
+                updated += 1
+        else:
+            db.session.add(VCard(uid, vc_property, data[vc_property]))
+            inserted += 1
+    db.session.commit()
+    return updated, inserted
+
+
+def render_vcf(items, uid):
+    vcl = ['BEGIN:VCARD', 'VERSION:3.0']
+    avatar = get_image(str(uid), 'PHOTO')
+    if not avatar:
+        avatar = get_image(app.config['DEFAULT_UUID'], 'PHOTO')
+    for vc_item in items:
+        vcl.append('%s:%s' % (vc_item.vc_property, vc_item.vc_value))
+        # if vc_item.vc_property[:2] == 'FN':
+        #     print(vc_item.vc_value)
+    if avatar:
+        vcl.append(avatar)
+    vcl.append('UID:%s' % uid)
+    vcl.append('END:VCARD')
+    # headers = {'Content-Disposition': 'inline; filename="%s.vcf"' % str(uid)}
+    # return Response("\n".join(vcl), mimetype="text/x-vcard", headers=headers)
+    return Response("\n".join(vcl), content_type="text/x-vcard")
+
+
