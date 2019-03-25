@@ -124,6 +124,13 @@ div.container {
     margin: 0 auto;
 }
 
+div.vcard {
+    text-align: left;
+    width: 50em;
+    margin: 0 auto;
+}
+
+
 fieldset {
     display: block;
     margin-inline-start: 2px;

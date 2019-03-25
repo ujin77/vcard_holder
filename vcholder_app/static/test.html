@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link href="main.css" rel="stylesheet">
+</head>
+<body>
+<div class="header">
+    <p>
+    [<a href="/admin">all vcards</a>]
+    user: <a href="/admin/user">admin</a>
+    [<a href="/logout">logout</a>]
+    </p>
+</div>
+<div class="content">
+    <div class="container">
+        <div class="flash_message">Update user message: test, test, test, test, test, test, test, test, test, test.</div>
+        <div class="flash_error">Update user error</div>
+        <div class="flash_ok">Update user ok</div>
+    </div>
+</div>
+<div class="content">
+    <div class="container">
+        <form action="/admin/user" method="POST" class="login">
+            <fieldset class="form_input">
+                <legend>Edit user</legend>
+                <div class="item">
+                    <label for="username">Username:</label>
+                    <input type="text" name="username" id="username" value="admin" readonly="">
+                </div>
+                <div class="item">
+                    <label for="api_key">Api key:</label>
+                    <input type="text" name="api_key" id="api_key" value="97671f018b484579b7a865158ac701c9" readonly="">
+                </div>
+                <div class="item">
+                    <label for="password1">Password:</label>
+                    <input type="password" name="password1" id="password1" placeholder="new password">
+                    <input type="password" name="password2" id="password2" placeholder="new password">
+                </div>
+                <input type="hidden" name="id" id="id" value="1">
+            </fieldset>
+            <fieldset class="form_submit">
+                <input type="submit" name="submit">
+            </fieldset>
+        </form>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Month</th>
+          <th>Savings</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>January</td>
+          <td>$100</td>
+          <td>test</td>
+        </tr>
+        <tr>
+          <td>February</td>
+          <td>$80</td>
+          <td>test</td>
+        </tr>
+      </tbody>
+      <tfoot>
+        <tr>
+          <td>Sum</td>
+          <td>$180</td>
+          <td>test wqdqw dwqdqw we,mdnwel nf lersnfk jnserkjf nskerjnf kejsrnfk j</td>
+        </tr>
+      </tfoot>
+    </table>
+    <div class="vcard">
+        <form action="/admin/user" method="POST" class="login">
+            <fieldset class="form_input">
+                <legend>VCARD</legend>
+                <div class="item">
+                    <label for="username">Username:</label>
+                    <input type="text" name="username" id="username" value="admin" readonly="">
+                </div>
+                <div class="item">
+                    <label for="api_key">Api key:</label>
+                    <input type="text" name="api_key" id="api_key" value="97671f018b484579b7a865158ac701c9" readonly="">
+                </div>
+                <div class="item">
+                    <label for="password1">Password:</label>
+                    <input type="password" name="password1" id="password1" placeholder="new password">
+                    <input type="password" name="password2" id="password2" placeholder="new password">
+                </div>
+                <input type="hidden" name="id" id="id" value="1">
+            </fieldset>
+            <fieldset class="form_submit">
+                <input type="submit" name="submit">
+            </fieldset>
+        </form>
+    </div>
+</div>
+</body>
+</html>
