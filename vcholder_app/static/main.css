@@ -171,8 +171,9 @@ fieldset legend {
     padding: 5px 10px;
     border: 1px solid #aaa;
     background-color: #fff;
-    box-shadow: 3px 3px 15px #bbb;
     max-width: 100%;
+    -webkit-box-shadow: 1px 1px 10px 0px #BBB;
+    box-shadow: 1px 1px 10px 0px #BBB;
 }
 
 form {
@@ -233,4 +234,30 @@ div#login{
   top: 50%;
   -ms-transform: translateY(-50%);
   transform: translateY(-50%);
+}
+
+
+.shadow{
+    -webkit-box-shadow: 1px 1px 10px 0px #777;
+    box-shadow: 1px 1px 10px 0px #777;
+}
+
+
+div.vcard {
+    display: table;
+    padding: 5px;
+    border: 1px solid #aaa;
+    -webkit-border-radius: 5px;
+    -webkit-box-shadow: 1px 1px 10px 0px #777;
+    border-radius: 5px;
+    box-shadow: 1px 1px 10px 0px #777;
+    width: 640px;
+}
+
+div.vcard_row {
+    display: table-row;
+}
+
+div.vcard_cell {
+    display: table-cell;
 }

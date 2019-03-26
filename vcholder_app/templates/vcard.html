@@ -11,13 +11,37 @@
     {{ super() }}
 {% endblock %}
 {% block content %}
-<a href="{{ url_for('upload_avatar', uid=uid) }}">
-    <img src="{{ url_for('get_avatar', uid=uid) }}"></a>
-<a href="{{ url_for('get_card', uid=uid) }}">
-    <img src="{{ url_for('get_qrcode', uid=uid) }}"></a>
-<table>
-{% for item in vcard_items %}
-    <tr><td>{{ item.vc_value }}</td></tr>
-{% endfor %}
-</table>
+<br/>
+<div class="vcard">
+        <div class="vcard_row">
+            <div class="vcard_cell">
+                <div class="vcard_row">
+                    <div class="vcard_cell"><a href="{{ url_for('get_card', uid=uid) }}">
+                        <img src="{{ url_for('get_qrcode', uid=uid) }}"></a>
+                    </div>
+                </div>
+                <div class="vcard_row">
+                    <div class="vcard_cell">
+                        <a href="{{ url_for('upload_avatar', uid=uid) }}">
+                            <img src="{{ url_for('get_avatar', uid=uid) }}"></a>
+                    </div>
+                </div>
+            </div>
+            <div class="vcard_cell">
+                <form action="/admin/vcard" method="POST">
+                    {% for item in vcard_items %}
+                        <div>
+                            <label for="{{ item.vc_property }}">{{ item.vc_property }}:</label>
+                            <input type="text" name="{{ item.vc_property }}" id="{{ item.vc_property }}" value="{{ item.vc_value }}" readonly="">
+                        </div>
+                    {% endfor %}
+                    <input type="hidden" name="id" value="1">
+                    <input type="submit" name="submit">
+                </form>
+            </div>
+        </div>
+        <div class="vcard_cell">
+        </div>
+</div>
+
 {% endblock %}
